@@ -384,6 +384,7 @@ function App() {
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  name="password"
                   autoComplete="current-password"
                   required
                 />
@@ -409,6 +410,7 @@ function App() {
                   placeholder="Room Code (for joining)"
                   value={roomCode}
                   onChange={(e) => setRoomCode(e.target.value)}
+                  name="roomCode"
                   autoComplete="new-roomCode"
                   required
                 />
@@ -419,6 +421,7 @@ function App() {
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  name="password"
                   autoComplete="current-password"
                   required
                 />
