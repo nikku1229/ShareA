@@ -28,7 +28,12 @@ function App() {
   //Api test
 
   useEffect(() => {
-    fetch("/api")
+
+    const API_BASE = "https://sharea-backend.onrender.com";
+    // const API_BASE = "http://localhost:5000";
+
+
+    fetch(`${API_BASE}/api`)
       .then((res) => res.json())
       .then((data) => setBackendMsg(data.message))
       .catch((err) => console.error("Frontend error:", err));

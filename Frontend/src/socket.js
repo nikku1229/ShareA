@@ -1,12 +1,11 @@
 import { io } from "socket.io-client";
 
-// const socket = io("http://localhost:5000", {
-//   transports: ["websocket"],
-// });
+// const URL = "http://localhost:5000";
+const URL = "https://sharea-backend.onrender.com";
 
-const socket = io("https://sharea-backend.onrender.com", {
-    transports: ["websocket"],
+const socket = io(URL, {
+  transports: ["websocket"],
 });
 
 
-  export default socket;
+export default socket;
