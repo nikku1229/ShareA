@@ -8,7 +8,7 @@ const server = createServer(app);
 
 app.use(
   cors({
-    origin: ["http://localhost:5173","https://share-a-prototype.vercel.app"],
+    origin: ["http://localhost:5173", "https://share-a-prototype.vercel.app"],
     methods: ["GET", "POST"],
     credentials: true,
   })
@@ -17,8 +17,9 @@ app.use(
 app.use(express.json());
 
 const io = new Server(server, {
+  maxHttpBufferSize: 20e6, // ⬅️ 20 MB limit to prevent crashes
   cors: {
-    origin: ["http://localhost:5173","https://share-a-prototype.vercel.app"],
+    origin: ["http://localhost:5173", "https://share-a-prototype.vercel.app"],
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -147,13 +148,34 @@ io.on("connection", (socket) => {
     if (!roomCode) return;
     console.log(`Chunk for ${fileName} in ${roomCode} from ${socket.id}`);
 
-    // Broadcast chunk to all other users
-    socket.to(roomCode).emit("fileChunk", { fileName, chunk, isLastChunk });
+    try {
+      // Convert to Buffer (for stable binary transmission)
+      const safeChunk = Buffer.from(chunk);
 
-    // ✅ If transfer finished, tell everyone
-    if (isLastChunk) {
-      io.to(roomCode).emit("fileComplete", { fileName, sender: socket.id });
+      // Broadcast chunk in smaller packages to reduce memory load
+      socket
+        .to(roomCode)
+        .emit("fileChunk", { fileName, chunk: safeChunk, isLastChunk });
+
+      if (isLastChunk) {
+        setTimeout(() => {
+          socket
+            .to(roomCode)
+            .emit("fileComplete", { fileName, sender: socket.id });
+        }, 100);
+        console.log(
+          `✅ File sent successfully: ${fileName} (${safeChunk.length} bytes)`
+        );
+      }
+    } catch (err) {
+      console.error(`❌ File chunk error for ${fileName}:`, err.message);
     }
+
+    // socket.to(roomCode).emit("fileChunk", { fileName, chunk, isLastChunk });
+
+    // if (isLastChunk) {
+    //   io.to(roomCode).emit("fileComplete", { fileName, sender: socket.id });
+    // }
   });
 
   // File metadata
@@ -173,7 +195,9 @@ io.on("connection", (socket) => {
     for (let roomCode in usersInRoom) {
       if (usersInRoom[roomCode]) {
         // Remove user from room
-        usersInRoom[roomCode] = usersInRoom[roomCode].filter((u) => u.id !== socket.id);
+        usersInRoom[roomCode] = usersInRoom[roomCode].filter(
+          (u) => u.id !== socket.id
+        );
 
         // Notify remaining users
         io.to(roomCode).emit("updateUsers", usersInRoom[roomCode]);

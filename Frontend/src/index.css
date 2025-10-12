@@ -103,6 +103,16 @@ progress {
   height: 15px;
   border-radius: 8px;
   overflow: hidden;
+  transition: opacity 0.5s ease;
+}
+
+progress.hide {
+  opacity: 0;
+}
+
+.drop-zone.dragging {
+  border-color: #0056b3;
+  background-color: #e6f2ff;
 }
 
 .chat-box {

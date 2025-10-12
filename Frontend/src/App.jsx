@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import socket from "./socket";
 import logo from "./assets/ShareA-Logo-full.png";
@@ -14,24 +14,26 @@ function App() {
 
   const [receivedFiles, setReceivedFiles] = useState([]);
   const [sentFiles, setSentFiles] = useState([]);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadProgress, setUploadProgress] = useState({});
+  const [downloadProgress, setDownloadProgress] = useState({});
 
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
   const [popUp, setpopUp] = useState("");
+  const [isDragging, setIsDragging] = useState(false);
 
   const [users, setUsers] = useState([]);
 
-  // const [downloadProgress, setDownloadProgress] = useState({});
+  const fileBuffersRef = useRef({});
+  const fileSizesRef = useRef({});
+  const receivedSizesRef = useRef({});
 
   //Api test
 
   useEffect(() => {
-
     const API_BASE = "https://sharea-backend.onrender.com";
     // const API_BASE = "http://localhost:5000";
-
 
     fetch(`${API_BASE}/api`)
       .then((res) => res.json())
@@ -80,51 +82,67 @@ function App() {
     });
 
     // Handle incoming file chunks
-    let fileBuffers = {};
-    let fileSizes = {};
-    let receivedSizes = {};
+    // const fileBuffersRef = useRef({});
+    // const fileSizesRef = useRef({});
+    // const receivedSizesRef = useRef({});
 
     socket.on("fileMeta", ({ fileName, fileSize }) => {
       console.log("Received fileMeta:", { fileName, fileSize });
 
-      fileBuffers[fileName] = [];
-      fileSizes[fileName] = fileSize;
-      receivedSizes[fileName] = 0;
-      // setDownloadProgress((prev) => ({ ...prev, [fileName]: 0 }));
+      fileBuffersRef.current[fileName] = [];
+      fileSizesRef.current[fileName] = fileSize;
+      receivedSizesRef.current[fileName] = 0;
+
+      setDownloadProgress((prev) => ({ ...prev, [fileName]: 0 }));
     });
 
     socket.on("fileChunk", ({ fileName, chunk, isLastChunk }) => {
-      // console.log("Received fileChunk:", chunk.fileName);
+      console.log("Received fileChunk:", chunk.fileName);
 
-      if (!fileBuffers[fileName]) fileBuffers[fileName] = [];
+      const arr = new Uint8Array(chunk);
+      const buffers = fileBuffersRef.current;
+      const sizes = fileSizesRef.current;
+      const received = receivedSizesRef.current;
 
-      // fileBuffers[fileName].push(new Uint8Array(chunk));
-      // receivedSizes[fileName] += chunk.byteLength;
+      if (!sizes[fileName]) {
+        console.warn(`Missing metadata for ${fileName}, skipping chunk`);
+        return;
+      }
 
-      const arr = new Uint8Array(chunk); // ensure it's typed array
-      fileBuffers[fileName].push(arr);
-      receivedSizes[fileName] += arr.byteLength;
+      if (!buffers[fileName]) buffers[fileName] = [];
+      if (!received[fileName]) received[fileName] = 0;
+
+      buffers[fileName].push(arr);
+      received[fileName] += arr.byteLength;
 
       // Update progress %
-      const percent = Math.round(
-        (receivedSizes[fileName] / fileSizes[fileName]) * 100
-      );
-      // setDownloadProgress((prev) => ({ ...prev, [fileName]: percent }));
+      const total = sizes[fileName] || 1;
+      const percent = Math.round((received[fileName] / sizes[fileName]) * 100);
+
+      setDownloadProgress((prev) => ({ ...prev, [fileName]: percent }));
 
       if (isLastChunk) {
         // Combine chunks into a blob
-        const fileBlob = new Blob(fileBuffers[fileName]);
+        const fileBlob = new Blob(buffers[fileName]);
         const url = URL.createObjectURL(fileBlob);
 
         setReceivedFiles((prev) => [...prev, { fileName, url }]);
+
+        setTimeout(() => {
+          setDownloadProgress((prev) => {
+            const updated = { ...prev };
+            if (updated[fileName]) delete updated[fileName];
+            return updated;
+          });
+        }, 500);
 
         // alert(`File received: ${fileName}`);
         // Show notification
         showNotification("File Received", `You received: ${fileName}`);
 
-        delete fileBuffers[fileName];
-        delete fileSizes[fileName];
-        delete receivedSizes[fileName];
+        delete buffers[fileName];
+        delete sizes[fileName];
+        delete received[fileName];
       }
     });
 
@@ -202,11 +220,11 @@ function App() {
   };
 
   // File sender
-  const sendFile = (event) => {
-    const file = event.target.files[0];
+  const sendFile = async (event) => {
+    const file = event?.target ? event.target.files[0] : event;
     if (!file) return;
 
-    const chunkSize = 64 * 1024; // 64KB per chunk
+    const chunkSize = 128 * 1024; // 128KB per chunk
     const totalChunks = Math.ceil(file.size / chunkSize);
     const reader = new FileReader();
     let offset = 0;
@@ -232,14 +250,25 @@ function App() {
 
       chunkIndex++;
       const percent = Math.round((chunkIndex / totalChunks) * 100);
-      setUploadProgress(percent);
+      setUploadProgress((prev) => ({
+        ...prev,
+        [file.name]: percent,
+      }));
 
       offset += chunkSize;
       if (!isLastChunk) {
-        readSlice(offset);
+        // readSlice(offset);
+
+        setTimeout(() => readSlice(offset), 80);
       } else {
         setSentFiles((prev) => [...prev, { fileName: file.name }]);
-        setTimeout(() => setUploadProgress(0), 2000);
+        setTimeout(() => {
+          setUploadProgress((prev) => {
+            const copy = { ...prev };
+            delete copy[file.name];
+            return copy;
+          });
+        }, 1000);
 
         // alert(`File sent: ${file.name}`);
 
@@ -257,6 +286,22 @@ function App() {
     };
 
     readSlice(0);
+  };
+
+  // 📦 Drag and Drop Handlers
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files[0];
+    if (file) sendFile(file);
   };
 
   // useEffect(() => {
@@ -314,7 +359,7 @@ function App() {
           <p className="status">Backend says: {backendMsg}</p>
 
           {roomCode && joinedRoom && (
-            <div style={{ textAlign: "center", marginBottom: "20px"}}>
+            <div style={{ textAlign: "center", marginBottom: "20px" }}>
               <h2>
                 Room Code: <span style={{ color: "blue" }}>{roomCode}</span>
               </h2>
@@ -539,12 +584,50 @@ function App() {
             {/* file check */}
             <section className="files">
               <h2>File Transfer</h2>
-              <input type="file" onChange={sendFile} />
+              {/* <input type="file" onChange={sendFile} /> */}
 
-              {uploadProgress > 0 && (
+              <div
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className={`drop-zone ${isDragging ? "dragging" : ""}`}
+                style={{
+                  border: "2px dashed #007bff",
+                  padding: "40px",
+                  borderRadius: "10px",
+                  backgroundColor: isDragging ? "#e6f0ff" : "#fafafa",
+                  textAlign: "center",
+                  transition: "0.2s",
+                  cursor: "pointer",
+                }}
+              >
+                <p style={{ fontSize: "16px", color: "#555" }}>
+                  {isDragging
+                    ? "📂 Drop file here to send"
+                    : "Drag & Drop your file here or click below"}
+                </p>
+                <input
+                  type="file"
+                  onChange={sendFile}
+                  style={{ marginTop: "10px" }}
+                />
+              </div>
+
+              {Object.keys(uploadProgress).length > 0 && (
                 <div>
-                  <p> Upload Progress: {uploadProgress}%</p>
-                  <progress value={uploadProgress} max="100"></progress>
+                  <h3>Uploading...</h3>
+                  <ul>
+                    {Object.keys(uploadProgress).map((fileName) => (
+                      <li key={fileName}>
+                        <p>{fileName}</p>
+                        <progress
+                          value={uploadProgress[fileName]}
+                          max="100"
+                        ></progress>
+                        <span>{uploadProgress[fileName]}%</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               )}
 
@@ -552,17 +635,29 @@ function App() {
                 <div>
                   <h3>Received Files:</h3>
                   <ul>
+                    {Object.keys(downloadProgress).length > 0 && (
+                      <div>
+                        <h3>Downloading...</h3>
+                        <ul>
+                          {Object.keys(downloadProgress).map((fileName) => (
+                            <li key={fileName}>
+                              <p>{fileName}</p>
+                              <progress
+                                value={downloadProgress[fileName]}
+                                max="100"
+                              ></progress>
+                              <span>{downloadProgress[fileName]}%</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
                     {receivedFiles.map((f, i) => (
                       <li key={i}>
                         <a href={f.url} download={f.fileName}>
                           {f.fileName}
                         </a>
-                        <br />
-                        {/* <progress
-                          value={downloadProgress[f.fileName] || 0}
-                          max="100"
-                        ></progress> */}
-                        {/* <span>{downloadProgress[f.fileName] || 0}%</span> */}
                       </li>
                     ))}
                   </ul>
