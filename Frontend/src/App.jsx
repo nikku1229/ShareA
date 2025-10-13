@@ -17,7 +17,8 @@ function App() {
   const [uploadProgress, setUploadProgress] = useState({});
   const [downloadProgress, setDownloadProgress] = useState({});
 
-  const [password, setPassword] = useState("");
+  const [joinedRoomPassword, setJoinedRoomPassword] = useState("");
+  const [createRoomPassword, setCreateRoomPassword] = useState("");
   const [error, setError] = useState("");
 
   const [popUp, setpopUp] = useState("");
@@ -32,8 +33,8 @@ function App() {
   //Api test
 
   useEffect(() => {
-    const API_BASE = "https://sharea-backend.onrender.com";
-    // const API_BASE = "http://localhost:5000";
+    // const API_BASE = "https://sharea-backend.onrender.com";
+    const API_BASE = "http://localhost:5000";
 
     fetch(`${API_BASE}/api`)
       .then((res) => res.json())
@@ -146,22 +147,6 @@ function App() {
       }
     });
 
-    // File progress update
-    // socket.on("file-progress", ({ fileName, progress }) => {
-    //   setFileProgress((prev) => ({ ...prev, [fileName]: progress }));
-
-    //   if (progress === 100) {
-    //     showNotification("✅ File Transfer Complete", `File: ${fileName}`);
-    //   }
-    // });
-
-    // File received
-    // socket.on("file-received", ({ fileName, fileUrl }) => {
-    //   setReceivedFiles((prev) => [...prev, { fileName, fileUrl }]);
-
-    //   showNotification("📩 New File Received", `File: ${fileName}`);
-    // });
-
     return () => {
       socket.off("connect");
       socket.off("disconnect");
@@ -173,37 +158,28 @@ function App() {
       socket.off("updateUsers");
       socket.off("fileMeta");
       socket.off("fileChunk");
-      // socket.off("file-progress");
-      // socket.off("file-received");
     };
   }, []);
 
   // Create Room
   const createRoom = () => {
-    if (password.trim() === "") {
+    if (createRoomPassword.trim() === "") {
       setError("Password is required");
       return;
     }
-    socket.emit("createRoom", password);
+    socket.emit("createRoom", createRoomPassword);
   };
 
   // Join Room
   const joinRoom = () => {
-    if (roomCode.trim() === "" || password.trim() === "") {
+    if (roomCode.trim() === "" || joinedRoomPassword.trim() === "") {
       setError("Room code and password required");
       return;
     }
-    socket.emit("joinRoom", { code: roomCode, password });
+    socket.emit("joinRoom", { code: roomCode, joinedRoomPassword });
     setpopUp(`👋 You joined the room ${roomCode}`);
     setTimeout(() => setpopUp(""), 2000);
   };
-
-  // Join room
-  // const joinRoom = () => {
-  //   if (roomCode.trim() !== "") {
-  //     socket.emit("joinRoom", roomCode);
-  //   }
-  // };
 
   // chat sender
   const sendMessage = () => {
@@ -304,14 +280,6 @@ function App() {
     if (file) sendFile(file);
   };
 
-  // useEffect(() => {
-  //   if ("Notification" in window) {
-  //     if (Notification.permission === "default") {
-  //       Notification.requestPermission();
-  //     }
-  //   }
-  // }, []);
-
   // Helper function for notifications
   const showNotification = (title, body) => {
     setpopUp(`🔔 ${title}: ${body}`);
@@ -357,6 +325,13 @@ function App() {
             <img src={logo} alt="ShareA Logo" />
           </Link>
           <p className="status">Backend says: {backendMsg}</p>
+
+          {/* Logged in user info */}
+          {localStorage.getItem("loggedInUser") && (
+            <p style={{ fontWeight: "bold", color: "#007bff" }}>
+              Welcome, {JSON.parse(localStorage.getItem("loggedInUser")).name}
+            </p>
+          )}
 
           {roomCode && joinedRoom && (
             <div style={{ textAlign: "center", marginBottom: "20px" }}>
@@ -432,8 +407,8 @@ function App() {
                 <input
                   type="password"
                   placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={createRoomPassword}
+                  onChange={(e) => setCreateRoomPassword(e.target.value)}
                   name="password"
                   autoComplete="current-password"
                   required
@@ -469,8 +444,8 @@ function App() {
                 <input
                   type="password"
                   placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={joinedRoomPassword}
+                  onChange={(e) => setJoinedRoomPassword(e.target.value)}
                   name="password"
                   autoComplete="current-password"
                   required
@@ -484,16 +459,6 @@ function App() {
             </section>
           </main>
         ) : (
-          // <section className="room">
-          //   <h2>Enter or Create Room</h2>
-          //   <input
-          //     type="text"
-          //     placeholder="Room Code"
-          //     value={roomCode}
-          //     onChange={(e) => setRoomCode(e.target.value)}
-          //   />
-          //   <button onClick={joinRoom}>Join / Create</button>
-          // </section>
           <main>
             {/* Sidebar - Active Users */}
             <aside className="sidebar-users">
@@ -534,12 +499,6 @@ function App() {
                   >
                     <div className="bubble">
                       <p>{c.text}</p>
-                      {/* <span className="time">
-                        {new Date().toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </span> */}
 
                       {c.user !== "system" && (
                         <span className="time">
@@ -550,7 +509,6 @@ function App() {
                         </span>
                       )}
                     </div>
-                    {/* <b>{c.user.substring(0, 5)}:</b> {c.text} */}
                   </div>
                 ))}
               </div>

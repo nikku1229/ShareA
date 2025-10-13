@@ -72,17 +72,14 @@ io.on("connection", (socket) => {
   });
 
   // Create / Join room
-  socket.on("joinRoom", ({ code, password }) => {
-    // socket.join(roomCode);
-    // console.log(`User ${socket.id} joined room ${roomCode}`);
-    // socket.emit("roomJoined", roomCode);
+  socket.on("joinRoom", ({ code, joinedRoomPassword }) => {
 
     const room = rooms[code];
     if (!room) {
       socket.emit("roomError", "❌ Room does not exist");
       return;
     }
-    if (room.password !== password) {
+    if (room.password !== joinedRoomPassword) {
       socket.emit("roomError", "❌ Incorrect password");
       return;
     }
