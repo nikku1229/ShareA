@@ -24,7 +24,8 @@ function App() {
   const [popUp, setpopUp] = useState("");
   const [isDragging, setIsDragging] = useState(false);
 
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState([]); //roomusers
+  const [loggedInUser, setLoggedInUser] = useState(); //logged in user
 
   const fileBuffersRef = useRef({});
   const fileSizesRef = useRef({});
@@ -33,8 +34,8 @@ function App() {
   //Api test
 
   useEffect(() => {
-    const API_BASE = "https://sharea-backend.onrender.com";
-    // const API_BASE = "http://localhost:5000";
+    // const API_BASE = "https://sharea-backend.onrender.com";
+    const API_BASE = "http://localhost:5000";
 
     fetch(`${API_BASE}/api`)
       .then((res) => res.json())
@@ -53,6 +54,7 @@ function App() {
     });
 
     socket.on("roomCreated", (code) => {
+      socket.currentRoom = code;
       setRoomCode(code);
       setJoinedRoom(true);
       setError("");
@@ -60,6 +62,7 @@ function App() {
     });
 
     socket.on("roomJoined", (code) => {
+      socket.currentRoom = code;
       setJoinedRoom(true);
       setError("");
       console.log(`Joined room: ${code}`);
@@ -81,11 +84,6 @@ function App() {
     socket.on("updateUsers", (roomUsers) => {
       setUsers(roomUsers);
     });
-
-    // Handle incoming file chunks
-    // const fileBuffersRef = useRef({});
-    // const fileSizesRef = useRef({});
-    // const receivedSizesRef = useRef({});
 
     socket.on("fileMeta", ({ fileName, fileSize }) => {
       console.log("Received fileMeta:", { fileName, fileSize });
@@ -118,7 +116,9 @@ function App() {
 
       // Update progress %
       const total = sizes[fileName] || 1;
-      const percent = Math.round((received[fileName] / sizes[fileName]) * 100);
+      const percent = Math.round(
+        (received[fileName] / sizes[fileName]) * 100
+      ).toFixed(1);
 
       setDownloadProgress((prev) => ({ ...prev, [fileName]: percent }));
 
@@ -137,13 +137,14 @@ function App() {
           });
         }, 500);
 
-        // alert(`File received: ${fileName}`);
-        // Show notification
         showNotification("File Received", `You received: ${fileName}`);
+        const savedSize = fileSizesRef.current[fileName] || 0;
 
         delete buffers[fileName];
         delete sizes[fileName];
         delete received[fileName];
+        delete fileSizesRef.current[fileName];
+        saveUserReceivedData(fileName, savedSize);
       }
     });
 
@@ -159,6 +160,27 @@ function App() {
       socket.off("fileMeta");
       socket.off("fileChunk");
     };
+  }, []);
+
+  // local storage user check
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("loggedInUser");
+      if (!raw) return; // no user stored yet
+      const userDetail = JSON.parse(raw);
+      if (userDetail) {
+        const normalized = {
+          ...userDetail,
+          data: {
+            saveSentData: userDetail.data?.saveSentData || [],
+            saveReceivedData: userDetail.data?.saveReceivedData || [],
+          },
+        };
+        setLoggedInUser(normalized);
+      }
+    } catch (err) {
+      console.error("Failed parsing loggedInUser from localStorage:", err);
+    }
   }, []);
 
   // Create Room
@@ -233,11 +255,10 @@ function App() {
 
       offset += chunkSize;
       if (!isLastChunk) {
-        // readSlice(offset);
-
         setTimeout(() => readSlice(offset), 80);
       } else {
         setSentFiles((prev) => [...prev, { fileName: file.name }]);
+        saveUserSentData(file.name, file.size);
         setTimeout(() => {
           setUploadProgress((prev) => {
             const copy = { ...prev };
@@ -245,8 +266,6 @@ function App() {
             return copy;
           });
         }, 1000);
-
-        // alert(`File sent: ${file.name}`);
 
         // ✅ Show notification
         showNotification(
@@ -316,6 +335,61 @@ function App() {
     setTimeout(() => setpopUp(""), 2000);
   };
 
+  const saveUserSentData = (fileName, fileSize) => {
+    const currentRoomCode = socket.currentRoom || roomCode || "";
+    const newEntry = {
+      FileName: fileName,
+      FileSize: fileSize,
+      RoomCode: currentRoomCode,
+    };
+
+    try {
+      const raw = localStorage.getItem("loggedInUser");
+      if (!raw) return;
+
+      const user = JSON.parse(raw);
+
+      const updatedUser = {
+        ...user,
+        data: {
+          saveSentData: [...(user.data?.saveSentData || []), newEntry],
+          saveReceivedData: user.data?.saveReceivedData || [],
+        },
+      };
+      setLoggedInUser(updatedUser);
+      localStorage.setItem("loggedInUser", JSON.stringify(updatedUser));
+    } catch (err) {
+      console.error("❌ Error saving sent file:", err);
+    }
+  };
+
+  const saveUserReceivedData = (fileName, fileSize) => {
+    const currentRoomCode = socket.currentRoom || roomCode || "";
+    const newEntry = {
+      FileName: fileName,
+      FileSize: fileSize,
+      RoomCode: currentRoomCode,
+    };
+
+    try {
+      const raw = localStorage.getItem("loggedInUser");
+      if (!raw) return;
+
+      const user = JSON.parse(raw);
+      const updatedUser = {
+        ...user,
+        data: {
+          saveReceivedData: [...(user.data?.saveReceivedData || []), newEntry],
+          saveSentData: user.data?.saveSentData || [],
+        },
+      };
+      setLoggedInUser(updatedUser);
+      localStorage.setItem("loggedInUser", JSON.stringify(updatedUser));
+    } catch (err) {
+      console.error("❌ Error saving sent file:", err);
+    }
+  };
+
   return (
     <>
       <div className="app">
@@ -327,9 +401,9 @@ function App() {
           <p className="status">Backend says: {backendMsg}</p>
 
           {/* Logged in user info */}
-          {localStorage.getItem("loggedInUser") && (
+          {loggedInUser && (
             <p style={{ fontWeight: "bold", color: "#007bff" }}>
-              Welcome, {JSON.parse(localStorage.getItem("loggedInUser")).name}
+              Welcome, {loggedInUser.name}
             </p>
           )}
 
@@ -459,179 +533,213 @@ function App() {
             </section>
           </main>
         ) : (
-          <main>
-            {/* Sidebar - Active Users */}
-            <aside className="sidebar-users">
-              <h3>Users in Room</h3>
-              <ul style={{ listStyle: "none", padding: 0 }}>
-                {users.map((u) => (
-                  <li
-                    key={u.id}
+          <>
+            <main>
+              {/* Sidebar - Active Users */}
+              <aside className="sidebar-users">
+                <h3>Users in Room</h3>
+                <ul style={{ listStyle: "none", padding: 0 }}>
+                  {users.map((u) => (
+                    <li
+                      key={u.id}
+                      style={{
+                        padding: "6px 8px",
+                        margin: "4px 0",
+                        borderRadius: "6px",
+                        backgroundColor:
+                          u.id === socket.id ? "#007bff" : "#eee",
+                        color: u.id === socket.id ? "white" : "black",
+                        fontWeight: u.id === socket.id ? "bold" : "normal",
+                      }}
+                    >
+                      {u.name}
+                    </li>
+                  ))}
+                </ul>
+              </aside>
+
+              {/* chat check */}
+              <section className="chat">
+                <h2>Chat Room</h2>
+                <div className="chat-box">
+                  {chat.map((c, i) => (
+                    <div
+                      key={i}
+                      className={`chat-message ${
+                        c.user === "system"
+                          ? "system"
+                          : c.user === socket.id
+                          ? "me"
+                          : "other"
+                      }`}
+                    >
+                      <div className="bubble">
+                        <p>{c.text}</p>
+
+                        {c.user !== "system" && (
+                          <span className="time">
+                            {new Date().toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="chat-input">
+                  <form
+                    action=""
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      sendMessage();
+                    }}
                     style={{
-                      padding: "6px 8px",
-                      margin: "4px 0",
-                      borderRadius: "6px",
-                      backgroundColor: u.id === socket.id ? "#007bff" : "#eee",
-                      color: u.id === socket.id ? "white" : "black",
-                      fontWeight: u.id === socket.id ? "bold" : "normal",
+                      display: "flex",
+                      width: "100%",
+                      justifyContent: "space-around",
+                      alignItems: "center",
+                      gap: "10px",
                     }}
                   >
-                    {u.name}
-                  </li>
-                ))}
-              </ul>
-            </aside>
+                    <input
+                      type="text"
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      placeholder="Type a message..."
+                    />
+                    <button>Send</button>
+                  </form>
+                </div>
+              </section>
 
-            {/* chat check */}
-            <section className="chat">
-              <h2>Chat Room</h2>
-              <div className="chat-box">
-                {chat.map((c, i) => (
-                  <div
-                    key={i}
-                    className={`chat-message ${
-                      c.user === "system"
-                        ? "system"
-                        : c.user === socket.id
-                        ? "me"
-                        : "other"
-                    }`}
-                  >
-                    <div className="bubble">
-                      <p>{c.text}</p>
+              {/* file check */}
+              <section className="files">
+                <h2>File Transfer</h2>
+                {/* <input type="file" onChange={sendFile} /> */}
 
-                      {c.user !== "system" && (
-                        <span className="time">
-                          {new Date().toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="chat-input">
-                <form
-                  action=""
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    sendMessage();
-                  }}
+                <div
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  className={`drop-zone ${isDragging ? "dragging" : ""}`}
                   style={{
-                    display: "flex",
-                    width: "100%",
-                    justifyContent: "space-around",
-                    alignItems: "center",
-                    gap: "10px",
+                    border: "2px dashed #007bff",
+                    padding: "40px",
+                    borderRadius: "10px",
+                    backgroundColor: isDragging ? "#e6f0ff" : "#fafafa",
+                    textAlign: "center",
+                    transition: "0.2s",
+                    cursor: "pointer",
                   }}
                 >
+                  <p style={{ fontSize: "16px", color: "#555" }}>
+                    {isDragging
+                      ? "📂 Drop file here to send"
+                      : "Drag & Drop your file here or click below"}
+                  </p>
                   <input
-                    type="text"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Type a message..."
+                    type="file"
+                    onChange={sendFile}
+                    style={{ marginTop: "10px" }}
                   />
-                  <button>Send</button>
-                </form>
-              </div>
-            </section>
-
-            {/* file check */}
-            <section className="files">
-              <h2>File Transfer</h2>
-              {/* <input type="file" onChange={sendFile} /> */}
-
-              <div
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                className={`drop-zone ${isDragging ? "dragging" : ""}`}
-                style={{
-                  border: "2px dashed #007bff",
-                  padding: "40px",
-                  borderRadius: "10px",
-                  backgroundColor: isDragging ? "#e6f0ff" : "#fafafa",
-                  textAlign: "center",
-                  transition: "0.2s",
-                  cursor: "pointer",
-                }}
-              >
-                <p style={{ fontSize: "16px", color: "#555" }}>
-                  {isDragging
-                    ? "📂 Drop file here to send"
-                    : "Drag & Drop your file here or click below"}
-                </p>
-                <input
-                  type="file"
-                  onChange={sendFile}
-                  style={{ marginTop: "10px" }}
-                />
-              </div>
-
-              {Object.keys(uploadProgress).length > 0 && (
-                <div>
-                  <h3>Uploading...</h3>
-                  <ul>
-                    {Object.keys(uploadProgress).map((fileName) => (
-                      <li key={fileName}>
-                        <p>{fileName}</p>
-                        <progress
-                          value={uploadProgress[fileName]}
-                          max="100"
-                        ></progress>
-                        <span>{uploadProgress[fileName]}%</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              <div style={{ display: "flex", gap: "40px", marginTop: "20px" }}>
-                <div>
-                  <h3>Received Files:</h3>
-                  <ul>
-                    {Object.keys(downloadProgress).length > 0 && (
-                      <div>
-                        <h3>Downloading...</h3>
-                        <ul>
-                          {Object.keys(downloadProgress).map((fileName) => (
-                            <li key={fileName}>
-                              <p>{fileName}</p>
-                              <progress
-                                value={downloadProgress[fileName]}
-                                max="100"
-                              ></progress>
-                              <span>{downloadProgress[fileName]}%</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    {receivedFiles.map((f, i) => (
-                      <li key={i}>
-                        <a href={f.url} download={f.fileName}>
-                          {f.fileName}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
                 </div>
 
-                <div>
-                  <h3>Sent Files:</h3>
-                  <ul>
-                    {sentFiles.map((f, i) => (
-                      <li key={i}>{f.fileName}</li>
-                    ))}
-                  </ul>
+                {Object.keys(uploadProgress).length > 0 && (
+                  <div>
+                    <h3>Uploading...</h3>
+                    <ul>
+                      {Object.keys(uploadProgress).map((fileName) => (
+                        <li key={fileName}>
+                          <p>{fileName}</p>
+                          <progress
+                            value={uploadProgress[fileName]}
+                            max="100"
+                          ></progress>
+                          <span>{uploadProgress[fileName]}%</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                <div
+                  style={{ display: "flex", gap: "40px", marginTop: "20px" }}
+                >
+                  <div>
+                    <h3>Received Files:</h3>
+                    <ul>
+                      {Object.keys(downloadProgress).length > 0 && (
+                        <div>
+                          <h3>Downloading...</h3>
+                          <ul>
+                            {Object.keys(downloadProgress).map((fileName) => (
+                              <li key={fileName}>
+                                <p>{fileName}</p>
+                                <progress
+                                  value={downloadProgress[fileName]}
+                                  max="100"
+                                ></progress>
+                                <span>{downloadProgress[fileName]}%</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {receivedFiles.map((f, i) => (
+                        <li key={i}>
+                          <a href={f.url} download={f.fileName}>
+                            {f.fileName}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3>Sent Files:</h3>
+                    <ul>
+                      {sentFiles.map((f, i) => (
+                        <li key={i}>{f.fileName}</li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
-              </div>
-            </section>
-          </main>
+              </section>
+            </main>
+            <main
+              className="save-data-container"
+              style={{
+                marginTop: "50px",
+              }}
+            >
+              <section>
+                <h2>Save received files</h2>
+                <ul>
+                  {loggedInUser?.data?.saveReceivedData?.map((item, index) => (
+                    <li key={index}>
+                      {item.FileName} - {item.FileSize} bytes in room:{" "}
+                      {item.RoomCode}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+              <section>
+                <h2>Save sent files</h2>
+                <ul>
+                  {loggedInUser?.data?.saveSentData?.map((item, index) => (
+                    <li key={index}>
+                      {item.FileName} - {item.FileSize} bytes in room:{" "}
+                      {item.RoomCode}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            </main>
+          </>
         )}
       </div>
     </>
