@@ -73,7 +73,6 @@ io.on("connection", (socket) => {
 
   // Create / Join room
   socket.on("joinRoom", ({ code, joinedRoomPassword }) => {
-
     const room = rooms[code];
     if (!room) {
       socket.emit("roomError", "❌ Room does not exist");
@@ -190,7 +189,9 @@ io.on("connection", (socket) => {
 
     // Loop through all rooms
     for (let roomCode in usersInRoom) {
-      if (usersInRoom[roomCode]) {
+      const userExists = usersInRoom[roomCode]?.some((u) => u.id === socket.id);
+
+      if (userExists) {
         // Remove user from room
         usersInRoom[roomCode] = usersInRoom[roomCode].filter(
           (u) => u.id !== socket.id
@@ -203,6 +204,7 @@ io.on("connection", (socket) => {
           `👤 User ${socket.id.substring(0, 5)} disconnected`
         );
       }
+      break;
     }
   });
 });
