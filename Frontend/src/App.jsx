@@ -34,8 +34,8 @@ function App() {
   //Api test
 
   useEffect(() => {
-    // const API_BASE = "https://sharea-backend.onrender.com";
-    const API_BASE = "http://localhost:5000";
+    const API_BASE = "https://sharea-backend.onrender.com";
+    // const API_BASE = "http://localhost:5000";
 
     fetch(`${API_BASE}/api`)
       .then((res) => res.json())
