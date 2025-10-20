@@ -390,6 +390,50 @@ function App() {
     }
   };
 
+  const deleteFromSent = (index) => () => {
+    try {
+      const raw = localStorage.getItem("loggedInUser");
+      if (!raw) return;
+      
+      const user = JSON.parse(raw);
+      const updatedSentData = [...(user.data?.saveSentData || [])];
+      updatedSentData.splice(index, 1); // remove the item at index
+      const updatedUser = {
+        ...user,
+        data: {
+          saveSentData: updatedSentData,
+          saveReceivedData: user.data?.saveReceivedData || [],
+        },
+      };
+      setLoggedInUser(updatedUser);
+      localStorage.setItem("loggedInUser", JSON.stringify(updatedUser));
+    } catch (err) {
+      console.error("❌ Error deleting sent file:", err);
+    }
+  };
+
+  const deleteFromReceive = (index) => () => {
+    try {
+      const raw = localStorage.getItem("loggedInUser");
+      if (!raw) return;
+      
+      const user = JSON.parse(raw);
+      const updatedReceivedData = [...(user.data?.saveReceivedData || [])];
+      updatedReceivedData.splice(index, 1); // remove the item at index
+      const updatedUser = {
+        ...user,
+        data: {
+          saveReceivedData: updatedReceivedData,
+          saveSentData: user.data?.saveSentData || [],
+        },
+      };
+      setLoggedInUser(updatedUser);
+      localStorage.setItem("loggedInUser", JSON.stringify(updatedUser));
+    } catch (err) {
+      console.error("❌ Error deleting received file:", err);
+    }
+  };  
+
   return (
     <>
       <div className="app">
@@ -723,6 +767,7 @@ function App() {
                     <li key={index}>
                       {item.FileName} - {item.FileSize} bytes in room:{" "}
                       {item.RoomCode}
+                      <span><button onClick={deleteFromReceive(index)}>X</button></span>
                     </li>
                   ))}
                 </ul>
@@ -734,6 +779,7 @@ function App() {
                     <li key={index}>
                       {item.FileName} - {item.FileSize} bytes in room:{" "}
                       {item.RoomCode}
+                      <span><button onClick={deleteFromSent(index)}>X</button></span>
                     </li>
                   ))}
                 </ul>
