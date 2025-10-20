@@ -38,13 +38,13 @@ function Register() {
         <div className="header">
           <div className="logo-favicon">
             <Link to="/">
-              <img src={faviconLogo} alt="ShareA Favicon" />
+              <img src={faviconLogo} alt="ShareA Favicon" loading="lazy" />
             </Link>
           </div>
         </div>
 
-        <div className="register-box">
-          <div className="register-form-section">
+        <div className="form-box">
+          <div className="form-section">
             <h1>Sign Up</h1>
             <form onSubmit={handleRegister} className="form">
               <input
@@ -52,6 +52,7 @@ function Register() {
                 placeholder="Full Name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                required
                 className="form-input"
               />
               <input
@@ -59,6 +60,7 @@ function Register() {
                 placeholder="Email Address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                required
                 className="form-input"
               />
               <input
@@ -66,6 +68,7 @@ function Register() {
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
                 className="form-input"
               />
               <button type="submit" className="form-button">
@@ -73,13 +76,13 @@ function Register() {
               </button>
             </form>
           </div>
-          <div className="alternate-form-section">
+          <div className="alternate-form-section signup-msg">
             <div className="primary-logo">
               <Link to="/">
                 <img src={Logo} alt="ShareA Logo" />
               </Link>
             </div>
-            <div className="signup-alternate-section">
+            <div className="options-section">
               <Link>
                 <img src={GoogleIcon} alt="google-icon" />
               </Link>
@@ -87,7 +90,7 @@ function Register() {
                 <img src={EmailIcon} alt="google-icon" />
               </Link>
             </div>
-            <p className="already-msg">
+            <p className="change-page-msg">
               Already have an account? <Link to="/login">Login</Link>
             </p>
           </div>

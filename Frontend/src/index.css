@@ -87,7 +87,7 @@ body {
   }
 }
 
-.register-box {
+.form-box {
   max-width: 1440px;
   height: 75vh;
   width: 100%;
@@ -96,11 +96,11 @@ body {
   align-items: center;
   padding: 10px 0;
 
-  .register-form-section {
+  .form-section {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 0 50px;
+    padding: 0 100px;
     width: 40%;
 
     form {
@@ -157,8 +157,7 @@ body {
     align-items: center;
     padding: 80px 30px;
     border: 2px solid var(--black);
-    border-radius: 20px 0px 0px 20px;
-    border-right: none;
+    transition: all 0.3 ease;
 
     .primary-logo {
       width: 400px;
@@ -171,7 +170,7 @@ body {
         }
       }
     }
-    .signup-alternate-section {
+    .options-section {
       margin-bottom: 20px;
       display: flex;
       align-items: center;
@@ -183,6 +182,14 @@ body {
         height: 40px;
       }
     }
+  }
+  .signup-msg{
+    border-radius: 20px 0px 0px 20px;
+    border-right: none;
+  }
+  .login-msg{
+    border-radius: 0px 20px 20px 0px;
+    border-left: none;
   }
 }
 
