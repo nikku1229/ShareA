@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import socket from "./socket";
-import logo from "./assets/ShareA-Logo-full.png";
+import logo from "./assets/Logos/ShareA-Logo-full.png";
 import "./index.css";
 
 function App() {
@@ -596,7 +596,7 @@ function App() {
                         fontWeight: u.id === socket.id ? "bold" : "normal",
                       }}
                     >
-                      {u.name}
+                      {u.id === socket.id ? loggedInUser ? loggedInUser.name : u.name : `Unknown User ${u.id.slice(0, 3)}`}
                     </li>
                   ))}
                 </ul>

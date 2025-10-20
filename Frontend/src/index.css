@@ -4,6 +4,10 @@
   box-sizing: border-box;
 }
 
+body{
+  background-image: linear-gradient(rgba(255,255,255,0.6),rgba(255,255,255,0.6)),url("./assets/Background/Background_ShareA.png");
+}
+
 .app {
   font-family: Arial, sans-serif;
   padding: 20px;
