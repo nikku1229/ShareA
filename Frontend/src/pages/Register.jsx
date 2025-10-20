@@ -1,5 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import faviconLogo from "../assets/Logos/ShareA-favicon.png";
+import Logo from "../assets/Logos/ShareA-Logo-full.png";
+import GoogleIcon from "../assets/Icons/GoogleIcon.svg";
+import EmailIcon from "../assets/Icons/EmailIcon.svg";
 
 function Register() {
   const [name, setName] = useState("");
@@ -29,40 +33,73 @@ function Register() {
   };
 
   return (
-    <div className="auth-container" style={{textAlign:"center", marginTop:"50px"}}>
-      <h2>Register</h2>
-      <form onSubmit={handleRegister} style={{
-        display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          gap: "10px",
-          marginTop: "20px",
-      }}>
-        <input
-          type="text"
-          placeholder="Full Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <input
-          type="email"
-          placeholder="Email Address"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button type="submit">Register</button>
-      </form>
-      <p style={{ marginTop: "20px" }}>
-        Already have an account? <Link to="/login">Login</Link>
-      </p>
-    </div>
+    <>
+      <div className="container">
+        <div className="header">
+          <div className="logo-favicon">
+            <Link to="/">
+              <img src={faviconLogo} alt="ShareA Favicon" />
+            </Link>
+          </div>
+        </div>
+
+        <div className="register-box">
+          <div className="register-form-section">
+            <h1>Sign Up</h1>
+            <form onSubmit={handleRegister} className="form">
+              <input
+                type="text"
+                placeholder="Full Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="form-input"
+              />
+              <input
+                type="email"
+                placeholder="Email Address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="form-input"
+              />
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="form-input"
+              />
+              <button type="submit" className="form-button">
+                SignUp
+              </button>
+            </form>
+          </div>
+          <div className="alternate-form-section">
+            <div className="primary-logo">
+              <Link to="/">
+                <img src={Logo} alt="ShareA Logo" />
+              </Link>
+            </div>
+            <div className="signup-alternate-section">
+              <Link>
+                <img src={GoogleIcon} alt="google-icon" />
+              </Link>
+              <Link>
+                <img src={EmailIcon} alt="google-icon" />
+              </Link>
+            </div>
+            <p className="already-msg">
+              Already have an account? <Link to="/login">Login</Link>
+            </p>
+          </div>
+        </div>
+
+        <Link to="/">
+          <div className="back-button">
+            <p>Back</p>
+          </div>
+        </Link>
+      </div>
+    </>
   );
 }
 
