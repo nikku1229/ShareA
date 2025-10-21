@@ -4,6 +4,7 @@ import faviconLogo from "../assets/Logos/ShareA-favicon.png";
 import Logo from "../assets/Logos/ShareA-Logo-full.png";
 import GoogleIcon from "../assets/Icons/GoogleIcon.svg";
 import EmailIcon from "../assets/Icons/EmailIcon.svg";
+import BackButton from "../components/BackButton.jsx";
 
 function Register() {
   const [name, setName] = useState("");
@@ -96,11 +97,7 @@ function Register() {
           </div>
         </div>
 
-        <Link to="/">
-          <div className="back-button">
-            <p>Back</p>
-          </div>
-        </Link>
+        <BackButton />
       </div>
     </>
   );
