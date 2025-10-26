@@ -15,8 +15,9 @@
   --gray: #9aa6b2;
   --transparent: transparent;
 
-  --shadow-primary: -5px -5px 10px rgba(0, 0, 0, 0.25),
-    5px 5px 10px rgba(0, 0, 0, 0.25);
+  --shadow-primary: -5px -5px 10px #1c352d, 5px 5px 10px #1c352d;
+
+  --shadow-secondary: -5px -5px 10px #0c0c0c, 5px 5px 10px #0c0c0c;
 
   --h1-font-size: 32px;
   --h2-font-size: 24px;
@@ -54,14 +55,18 @@ body {
   button {
     font-size: var(--text-size);
     font-weight: 400;
+
+    &:focus {
+      border: none;
+    }
   }
 
   a {
     color: var(--primary-color);
-  }
 
-  a:hover {
-    text-decoration: none;
+    &:hover {
+      text-decoration: none;
+    }
   }
 }
 
@@ -107,6 +112,51 @@ body {
       text-decoration: none;
       background-color: var(--white);
       cursor: pointer;
+    }
+
+    .user-btn {
+      padding: 10px;
+      border: 2px solid var(--black);
+      border-radius: 50%;
+      width: 70px;
+      height: 70px;
+      background-color: var(--secondary-color);
+      cursor: pointer;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+    }
+
+    .profile-details {
+      width: 200px;
+      height: 150px;
+      position: absolute;
+      background-color: var(--gray);
+      padding: 20px;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      margin-left: -130px;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.2s ease;
+
+      .profile-name p {
+        padding-bottom: 10px;
+        color: var(--black);
+        font-size: var(--h2-font-size);
+      }
+
+      .logout-btn button {
+        padding: 15px;
+        border: 2px solid var(--black);
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: var(--text-size);
+      }
     }
   }
 }
@@ -238,7 +288,7 @@ body {
     color: var(--black);
   }
 
-  img{
+  img {
     width: 40px;
   }
 }
@@ -268,6 +318,7 @@ body {
 
 .home-full-logo {
   width: 350px;
+  padding-top: 30px;
 
   a {
     img {
@@ -347,7 +398,16 @@ body {
   background-color: var(--black);
 }
 
-.sidebar-section{
+.room-error-msg p {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 20px;
+  color: red;
+}
+
+.sidebar-section {
   width: 25vw;
   background-color: var(--secondary-color);
   position: absolute;
@@ -360,14 +420,15 @@ body {
   flex-direction: column;
   align-items: end;
   gap: 30px;
+  transition: all 0.3s ease;
 
-  .toggle-sidebar-btn{
+  .toggle-sidebar-btn {
     width: 100%;
     display: flex;
     justify-content: flex-end;
     align-items: center;
 
-    .sidebar-close-btn{
+    .sidebar-close-btn {
       border: 2px solid var(--black);
       border-radius: 50%;
       background-color: var(--white);
@@ -377,19 +438,19 @@ body {
       cursor: pointer;
       padding: 15px;
 
-      img{
+      img {
         width: 40px;
       }
     }
   }
 
-  .sidebar-links{
+  .sidebar-links {
     width: 100%;
     height: 70vh;
     display: flex;
     flex-direction: column;
 
-    ul{
+    ul {
       width: 100%;
       height: 100%;
       list-style: none;
@@ -399,21 +460,52 @@ body {
       flex-direction: column;
       gap: 15px;
 
-      li{
-        padding-bottom: 10px; 
+      li {
+        padding-bottom: 10px;
       }
     }
 
-    a{
+    a {
       font-size: var(--h2-font-size);
       color: var(--black);
       text-decoration: none;
     }
 
-    a:hover{
+    a:hover {
       color: var(--primary-color);
       text-decoration: underline;
     }
+  }
+}
+
+.toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color: var(--primary-color);
+  color: var(--white);
+  padding: 15px 20px;
+  border-radius: 10px;
+  box-shadow: var(--shadow-primary);
+  animation: fadeInOut 2s ease-in-out;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  80% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(20px);
   }
 }
 
@@ -446,12 +538,12 @@ main {
   gap: 20px;
 }
 
-section {
+/* section {
   background: #f9f9f9;
   padding: 15px;
   border-radius: 10px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
+} */
 
 .chat-box {
   border: 1px solid #ddd;
@@ -582,23 +674,4 @@ progress.hide {
   position: fixed;
   top: 50%;
   left: 0;
-}
-
-@keyframes fadeInOut {
-  0% {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  20% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  80% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(20px);
-  }
 }

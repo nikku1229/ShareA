@@ -1,22 +1,44 @@
 import React from "react";
-import { useState } from "react";
-import Header from "../components/Header";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import Header from "../components/Header";
+import Sidebar from "../components/Sidebar";
+import users from "../context/User";
 import FullLogo from "../assets/Logos/ShareA-Logo-full.png";
 import RoomIcon from "../assets/Icons/RoomIcon.svg";
 import HamburgerIcon from "../assets/Icons/HamburgerIcon.svg";
-import Sidebar from "../components/Sidebar";
 
-function Home() {
+function Home({
+  createRoom,
+  createRoomPassword,
+  setCreateRoomPassword,
+  joinRoom,
+  roomCode,
+  setRoomCode,
+  joinedRoomPassword,
+  setJoinedRoomPassword,
+  error,
+}) {
+  const [loggedInUser, setLoggedInUser] = useState();
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarToggle = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
+  useEffect(() => {
+    setLoggedInUser(users);
+  }, []);
+
+  const logoutUser = () => {
+    localStorage.removeItem("loggedInUser");
+    setLoggedInUser(null);
+  };
+
   return (
     <>
       <div className="container">
-        <Header />
+        <Header loggedInUser={loggedInUser} logoutUser={logoutUser} />
 
         <div className="home-full-logo">
           <h1>
@@ -27,33 +49,83 @@ function Home() {
         </div>
 
         <div className="rooms-credentials">
-          <div className="create room-sections">
-            <div className="text-area">
-              <h2>Create Room</h2>
-              <img src={RoomIcon} alt="Room Icon" />
-            </div>
-            <div className="room-input-area">
-              <input type="text" placeholder="Enter password to create" />
-            </div>
-            <div className="room-btn-area">
-              <button className="room-btn">Create</button>
-            </div>
+          <div>
+            <form
+              className="create room-sections"
+              action="#"
+              onSubmit={(e) => {
+                e.preventDefault();
+                createRoom();
+              }}
+            >
+              <div className="text-area">
+                <h2>Create Room</h2>
+                <img src={RoomIcon} alt="Room Icon" />
+              </div>
+              <div className="room-input-area">
+                {/* <input type="text" placeholder="Enter password to create" /> */}
+                <input
+                  type="password"
+                  placeholder="Enter password to create"
+                  value={createRoomPassword}
+                  onChange={(e) => setCreateRoomPassword(e.target.value)}
+                  name="password"
+                  autoComplete="current-password"
+                  required
+                />
+              </div>
+              <div className="room-btn-area">
+                <button className="room-btn">Create</button>
+              </div>
+            </form>
           </div>
 
           <div className="seperator"></div>
 
-          <div className="join room-sections">
-            <div className="text-area">
-              <h2>Join Room</h2>
-              <img src={RoomIcon} alt="Room Icon" />
-            </div>
-            <div className="room-input-area">
-              <input type="text" placeholder="Enter room id" />
-              <input type="text" placeholder="Enter room password" />
-            </div>
-            <div className="room-btn-area">
-              <button className="room-btn">Join</button>
-            </div>
+          <div>
+            <form
+              className="join room-sections"
+              action="#"
+              onSubmit={(e) => {
+                e.preventDefault();
+                joinRoom();
+              }}
+            >
+              <div className="text-area">
+                <h2>Join Room</h2>
+                <img src={RoomIcon} alt="Room Icon" />
+              </div>
+              <div className="room-input-area">
+                {/* <input type="text" placeholder="Enter room id" /> */}
+                {/* <input type="text" placeholder="Enter room password" /> */}
+                <input
+                  type="text"
+                  placeholder="Enter room code"
+                  value={roomCode}
+                  onChange={(e) => setRoomCode(e.target.value)}
+                  name="roomCode"
+                  autoComplete="new-roomCode"
+                  required
+                />
+
+                <input
+                  type="password"
+                  placeholder="Enter room password"
+                  value={joinedRoomPassword}
+                  onChange={(e) => setJoinedRoomPassword(e.target.value)}
+                  name="password"
+                  autoComplete="current-password"
+                  required
+                />
+              </div>
+              <div className="room-btn-area">
+                <button className="room-btn">Join</button>
+              </div>
+            </form>
+          </div>
+
+          <div className="room-error-msg">
+            {error && <p style={{ color: "red" }}>{error}</p>}
           </div>
         </div>
 

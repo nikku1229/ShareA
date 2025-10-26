@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import socket from "./socket";
+import Home from "./pages/Home";
+import Toast from "./components/Toast";
 import logo from "./assets/Logos/ShareA-Logo-full.png";
 import "./index.css";
 
@@ -24,14 +26,12 @@ function App() {
   const [popUp, setpopUp] = useState("");
   const [isDragging, setIsDragging] = useState(false);
 
-  const [users, setUsers] = useState([]); //roomusers
-  const [loggedInUser, setLoggedInUser] = useState(); //logged in user
+  const [users, setUsers] = useState([]);
+  const [loggedInUser, setLoggedInUser] = useState();
 
   const fileBuffersRef = useRef({});
   const fileSizesRef = useRef({});
   const receivedSizesRef = useRef({});
-
-  //Api test
 
   useEffect(() => {
     const API_BASE = "https://sharea-backend.onrender.com";
@@ -199,8 +199,8 @@ function App() {
       return;
     }
     socket.emit("joinRoom", { code: roomCode, joinedRoomPassword });
-    setpopUp(`👋 You joined the room ${roomCode}`);
-    setTimeout(() => setpopUp(""), 2000);
+    // joinRoom ? setpopUp(`👋 You joined the room ${roomCode}`) : "";
+    // setTimeout(() => setpopUp(""), 2000);
   };
 
   // chat sender
@@ -325,6 +325,8 @@ function App() {
   const leaveRoom = () => {
     socket.emit("leaveRoom", roomCode); // notify server
     setRoomCode("");
+    setJoinedRoomPassword("");
+    setCreateRoomPassword("");
     setJoinedRoom(false);
 
     setChat([]);
@@ -394,7 +396,7 @@ function App() {
     try {
       const raw = localStorage.getItem("loggedInUser");
       if (!raw) return;
-      
+
       const user = JSON.parse(raw);
       const updatedSentData = [...(user.data?.saveSentData || [])];
       updatedSentData.splice(index, 1); // remove the item at index
@@ -416,7 +418,7 @@ function App() {
     try {
       const raw = localStorage.getItem("loggedInUser");
       if (!raw) return;
-      
+
       const user = JSON.parse(raw);
       const updatedReceivedData = [...(user.data?.saveReceivedData || [])];
       updatedReceivedData.splice(index, 1); // remove the item at index
@@ -432,152 +434,77 @@ function App() {
     } catch (err) {
       console.error("❌ Error deleting received file:", err);
     }
-  };  
+  };
 
   return (
     <>
-      <div className="app">
-        <header>
-          {/* <h1>ShareA</h1> */}
-          <Link to="/">
-            <img src={logo} alt="ShareA Logo" />
-          </Link>
-          <p className="status">Backend says: {backendMsg}</p>
+      {!joinedRoom ? (
+        <>
+          <Home
+            createRoom={createRoom}
+            createRoomPassword={createRoomPassword}
+            setCreateRoomPassword={setCreateRoomPassword}
+            joinRoom={joinRoom}
+            roomCode={roomCode}
+            setRoomCode={setRoomCode}
+            joinedRoomPassword={joinedRoomPassword}
+            setJoinedRoomPassword={setJoinedRoomPassword}
+            error={error}
+          />
+        </>
+      ) : (
+        <>
+          <div className="app">
+            {/* <h1>ShareA</h1>
+            <Link to="/">
+              <img src={logo} alt="ShareA Logo" />
+            </Link>
+            <p className="status">Backend says: {backendMsg}</p>
+            Logged in user info
+            {loggedInUser && (
+              <p style={{ fontWeight: "bold", color: "#007bff" }}>
+                Welcome, {loggedInUser.name}
+              </p>
+            )} */}
 
-          {/* Logged in user info */}
-          {loggedInUser && (
-            <p style={{ fontWeight: "bold", color: "#007bff" }}>
-              Welcome, {loggedInUser.name}
-            </p>
-          )}
+            {roomCode && joinedRoom && (
+              <div style={{ textAlign: "center", marginBottom: "20px" }}>
+                <h2>
+                  Room Code: <span style={{ color: "blue" }}>{roomCode}</span>
+                </h2>
+                <button
+                  onClick={() => {
+                    copyRoomCode(roomCode);
+                  }}
+                  style={{
+                    marginTop: "10px",
+                    padding: "5px 12px",
+                    cursor: "pointer",
+                    borderRadius: "6px",
+                    border: "1px solid #007bff",
+                    backgroundColor: "#007bff",
+                    color: "white",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Copy Room Code
+                </button>
 
-          {roomCode && joinedRoom && (
-            <div style={{ textAlign: "center", marginBottom: "20px" }}>
-              <h2>
-                Room Code: <span style={{ color: "blue" }}>{roomCode}</span>
-              </h2>
-              <button
-                onClick={() => {
-                  copyRoomCode(roomCode);
-                }}
-                style={{
-                  marginTop: "10px",
-                  padding: "5px 12px",
-                  cursor: "pointer",
-                  borderRadius: "6px",
-                  border: "1px solid #007bff",
-                  backgroundColor: "#007bff",
-                  color: "white",
-                  fontWeight: "bold",
-                }}
-              >
-                Copy Room Code
-              </button>
-
-              <button
-                onClick={leaveRoom}
-                style={{
-                  padding: "6px 14px",
-                  borderRadius: "6px",
-                  border: "none",
-                  backgroundColor: "#dc3545",
-                  color: "white",
-                  cursor: "pointer",
-                }}
-              >
-                Leave Room
-              </button>
-            </div>
-          )}
-        </header>
-
-        {/* popUp Notification */}
-        {popUp && (
-          <div
-            style={{
-              position: "fixed",
-              bottom: "20px",
-              right: "20px",
-              background: "#333",
-              color: "white",
-              padding: "10px 20px",
-              borderRadius: "8px",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
-              animation: "fadeInOut 2s ease-in-out",
-            }}
-          >
-            {popUp}
-          </div>
-        )}
-
-        {!joinedRoom ? (
-          <main>
-            <section className="room">
-              <h2>Create Room</h2>
-
-              <form
-                action=""
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  createRoom();
-                }}
-              >
-                <input
-                  type="password"
-                  placeholder="Password"
-                  value={createRoomPassword}
-                  onChange={(e) => setCreateRoomPassword(e.target.value)}
-                  name="password"
-                  autoComplete="current-password"
-                  required
-                />
-                <br />
-
-                <button>Create Room</button>
-              </form>
-
-              {error && <p style={{ color: "red" }}>{error}</p>}
-            </section>
-            <section className="room">
-              <h2>Join Room</h2>
-
-              <form
-                action=""
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  joinRoom();
-                }}
-              >
-                <input
-                  type="text"
-                  placeholder="Room Code (for joining)"
-                  value={roomCode}
-                  onChange={(e) => setRoomCode(e.target.value)}
-                  name="roomCode"
-                  autoComplete="new-roomCode"
-                  required
-                />
-                <br />
-
-                <input
-                  type="password"
-                  placeholder="Password"
-                  value={joinedRoomPassword}
-                  onChange={(e) => setJoinedRoomPassword(e.target.value)}
-                  name="password"
-                  autoComplete="current-password"
-                  required
-                />
-                <br />
-
-                <button>Join Room</button>
-              </form>
-
-              {error && <p style={{ color: "red" }}>{error}</p>}
-            </section>
-          </main>
-        ) : (
-          <>
+                <button
+                  onClick={leaveRoom}
+                  style={{
+                    padding: "6px 14px",
+                    borderRadius: "6px",
+                    border: "none",
+                    backgroundColor: "#dc3545",
+                    color: "white",
+                    cursor: "pointer",
+                  }}
+                >
+                  Leave Room
+                </button>
+              </div>
+            )}
             <main>
               {/* Sidebar - Active Users */}
               <aside className="sidebar-users">
@@ -596,7 +523,11 @@ function App() {
                         fontWeight: u.id === socket.id ? "bold" : "normal",
                       }}
                     >
-                      {u.id === socket.id ? loggedInUser ? loggedInUser.name : u.name : `Unknown User ${u.id.slice(0, 3)}`}
+                      {u.id === socket.id
+                        ? loggedInUser
+                          ? loggedInUser.name
+                          : u.name
+                        : `Unknown User ${u.id.slice(0, 3)}`}
                     </li>
                   ))}
                 </ul>
@@ -662,7 +593,6 @@ function App() {
               {/* file check */}
               <section className="files">
                 <h2>File Transfer</h2>
-                {/* <input type="file" onChange={sendFile} /> */}
 
                 <div
                   onDragOver={handleDragOver}
@@ -767,7 +697,9 @@ function App() {
                     <li key={index}>
                       {item.FileName} - {item.FileSize} bytes in room:{" "}
                       {item.RoomCode}
-                      <span><button onClick={deleteFromReceive(index)}>X</button></span>
+                      <span>
+                        <button onClick={deleteFromReceive(index)}>X</button>
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -779,15 +711,19 @@ function App() {
                     <li key={index}>
                       {item.FileName} - {item.FileSize} bytes in room:{" "}
                       {item.RoomCode}
-                      <span><button onClick={deleteFromSent(index)}>X</button></span>
+                      <span>
+                        <button onClick={deleteFromSent(index)}>X</button>
+                      </span>
                     </li>
                   ))}
                 </ul>
               </section>
             </main>
-          </>
-        )}
-      </div>
+          </div>
+        </>
+      )}
+
+      {popUp && <Toast popUp={popUp} />}
     </>
   );
 }
