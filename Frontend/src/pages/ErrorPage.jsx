@@ -6,7 +6,7 @@ function ErrorPage() {
   return (
     <>
       <div className="container">
-        <section className="error-section">
+        <section className="error-page">
           <img src={ErrorIcon} alt="error icon" className="error-img"/>
           <h1>404 - Page Not Found</h1>
           <p>The page you are looking for does not exist.</p>

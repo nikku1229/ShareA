@@ -6,12 +6,14 @@ import "./index.css";
 import Register from "./pages/Register.jsx";
 import Login from "./pages/Login.jsx";
 import ErrorPage from "./pages/ErrorPage.jsx";
+import Home from "./pages/Home.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<App />} />
+        <Route path="/home" element={<Home />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="*" element={<ErrorPage />} />
