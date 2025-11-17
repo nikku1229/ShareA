@@ -49,13 +49,28 @@ io.on("connection", (socket) => {
     }
 
     const code = generateRoomCode();
-    rooms[code] = { password, members: [] };
+    rooms[code] = {
+      password,
+      members: [],
+      createdAt: Date.now(),
+      timeout: null,
+    };
 
     socket.join(code);
     rooms[code].members.push(socket.id);
 
     console.log(`Room ${code} created with password ${password}`);
     socket.emit("roomCreated", code);
+
+    // Auto delete the room after 1 hour
+    rooms[code].timeout = setTimeout(() => {
+      console.log(`⏱️ Room ${code} expired and is being closed`);
+
+      io.in(code).socketsLeave(code);
+
+      delete rooms[code];
+      delete usersInRoom[code];
+    }, 3600000); // 1 hour
 
     // store user
     if (!usersInRoom[code]) usersInRoom[code] = [];
@@ -201,7 +216,7 @@ io.on("connection", (socket) => {
         io.to(roomCode).emit("updateUsers", usersInRoom[roomCode]);
         io.to(roomCode).emit(
           "systemMessage",
-          `👤 User ${socket.id.substring(0, 5)} disconnected`
+          `User ${socket.id.substring(0, 5)} disconnected`
         );
       }
       break;
