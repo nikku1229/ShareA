@@ -11,6 +11,7 @@ function users() {
           saveReceivedData: userDetail.data?.saveReceivedData || [],
         },
       };
+      return normalized;
     }
     return userDetail;
   } catch (err) {
@@ -18,6 +19,6 @@ function users() {
 
     return err;
   }
-};
+}
 
 export default users();

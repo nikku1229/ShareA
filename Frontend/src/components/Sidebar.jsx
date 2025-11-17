@@ -2,7 +2,7 @@ import React from "react";
 import SidebarCloseIcon from "../assets/Icons/SidebarCloseIcon.svg";
 import { Link } from "react-router-dom";
 
-function Sidebar({ sidebarToggle }) {
+function Sidebar({ sidebarToggle, joinedRoom, chatToggle }) {
   return (
     <>
       <div className="sidebar-section">
@@ -14,8 +14,23 @@ function Sidebar({ sidebarToggle }) {
 
         <div className="sidebar-links">
           <ul>
-            <li><Link>Send Files</Link></li>
-            <li><Link>Received Files</Link></li>
+            <li>
+              <Link>Send Files</Link>
+            </li>
+            <li>
+              <Link>Received Files</Link>
+            </li>
+            {joinedRoom && (
+              <li>
+                <Link
+                  onClick={() => {
+                    chatToggle();
+                  }}
+                >
+                  Chat Box
+                </Link>
+              </li>
+            )}
           </ul>
         </div>
       </div>

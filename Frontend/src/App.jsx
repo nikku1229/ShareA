@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
 import socket from "./socket";
 import Home from "./pages/Home";
+import Room from "./pages/Room";
 import Toast from "./components/Toast";
-import logo from "./assets/Logos/ShareA-Logo-full.png";
 import "./index.css";
 
 function App() {
@@ -284,20 +283,20 @@ function App() {
   };
 
   // 📦 Drag and Drop Handlers
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-  const handleDragLeave = (e) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const file = e.dataTransfer.files[0];
-    if (file) sendFile(file);
-  };
+  // const handleDragOver = (e) => {
+  //   e.preventDefault();
+  //   setIsDragging(true);
+  // };
+  // const handleDragLeave = (e) => {
+  //   e.preventDefault();
+  //   setIsDragging(false);
+  // };
+  // const handleDrop = (e) => {
+  //   e.preventDefault();
+  //   setIsDragging(false);
+  //   const file = e.dataTransfer.files[0];
+  //   if (file) sendFile(file);
+  // };
 
   // Helper function for notifications
   const showNotification = (title, body) => {
@@ -318,7 +317,7 @@ function App() {
   const copyRoomCode = (roomCode) => {
     navigator.clipboard.writeText(roomCode);
     setpopUp("✅ Room code copied!");
-    setTimeout(() => setpopUp(""), 2000); // hide after 2 seconds
+    setTimeout(() => setpopUp(""), 2000);
   };
 
   // 📌 Leave room
@@ -454,20 +453,26 @@ function App() {
         </>
       ) : (
         <>
-          <div className="app">
-            {/* <h1>ShareA</h1>
-            <Link to="/">
-              <img src={logo} alt="ShareA Logo" />
-            </Link>
-            <p className="status">Backend says: {backendMsg}</p>
-            Logged in user info
-            {loggedInUser && (
-              <p style={{ fontWeight: "bold", color: "#007bff" }}>
-                Welcome, {loggedInUser.name}
-              </p>
-            )} */}
+          <Room
+            roomCode={roomCode}
+            joinedRoom={joinedRoom}
+            setpopUp={setpopUp}
+            leaveRoom={leaveRoom}
+            sendFile={sendFile}
+            sentFiles={sentFiles}
+            receivedFiles={receivedFiles}
+            users={users}
+            socket={socket.id}
+            uploadProgress={uploadProgress}
+            downloadProgress={downloadProgress}
+            chat={chat}
+            sendMessage={sendMessage}
+            message={message}
+            setMessage={setMessage}
 
-            {roomCode && joinedRoom && (
+          />
+          {/* <div className="app"> */}
+            {/* {roomCode && joinedRoom && (
               <div style={{ textAlign: "center", marginBottom: "20px" }}>
                 <h2>
                   Room Code: <span style={{ color: "blue" }}>{roomCode}</span>
@@ -504,10 +509,10 @@ function App() {
                   Leave Room
                 </button>
               </div>
-            )}
-            <main>
+            )} */}
+            {/* <main> */}
               {/* Sidebar - Active Users */}
-              <aside className="sidebar-users">
+              {/* <aside className="sidebar-users">
                 <h3>Users in Room</h3>
                 <ul style={{ listStyle: "none", padding: 0 }}>
                   {users.map((u) => (
@@ -531,10 +536,10 @@ function App() {
                     </li>
                   ))}
                 </ul>
-              </aside>
+              </aside> */}
 
               {/* chat check */}
-              <section className="chat">
+              {/* <section className="chat">
                 <h2>Chat Room</h2>
                 <div className="chat-box">
                   {chat.map((c, i) => (
@@ -588,10 +593,10 @@ function App() {
                     <button>Send</button>
                   </form>
                 </div>
-              </section>
+              </section> */}
 
               {/* file check */}
-              <section className="files">
+              {/* <section className="files">
                 <h2>File Transfer</h2>
 
                 <div
@@ -682,9 +687,9 @@ function App() {
                     </ul>
                   </div>
                 </div>
-              </section>
-            </main>
-            <main
+              </section>*/}
+            {/* </main>  */}
+            {/* <main
               className="save-data-container"
               style={{
                 marginTop: "50px",
@@ -718,8 +723,8 @@ function App() {
                   ))}
                 </ul>
               </section>
-            </main>
-          </div>
+            </main> */}
+          {/* </div> */}
         </>
       )}
 
