@@ -1,6 +1,5 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import socket from "../socket";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import SaveReceivedData from "../components/SaveReceivedData";
@@ -29,7 +28,6 @@ function Room({
   sendMessage,
   message,
   setMessage,
-  // deleteFromSent,
 }) {
   const [loggedInUser, setLoggedInUser] = useState();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -375,7 +373,6 @@ function Room({
               toggleSendBlockFunction={toggleSendBlockFunction}
               loggedInUser={loggedInUser}
               setLoggedInUser={setLoggedInUser}
-              // deleteFromSent={deleteFromSent}
             />
           </>
         )}

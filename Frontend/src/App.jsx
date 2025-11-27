@@ -23,7 +23,6 @@ function App() {
   const [error, setError] = useState("");
 
   const [popUp, setpopUp] = useState("");
-  const [isDragging, setIsDragging] = useState(false);
 
   const [users, setUsers] = useState([]);
   const [loggedInUser, setLoggedInUser] = useState();
@@ -67,7 +66,7 @@ function App() {
       socket.currentRoom = code;
       setJoinedRoom(true);
       setError("");
-      console.log(`Joined room: ${code}`);
+      // console.log(`Joined room: ${code}`);
     });
 
     socket.on("roomError", (msg) => {
@@ -88,7 +87,7 @@ function App() {
     });
 
     socket.on("fileMeta", ({ fileName, fileSize }) => {
-      console.log("Received fileMeta:", { fileName, fileSize });
+      // console.log("Received fileMeta:", { fileName, fileSize });
 
       fileBuffersRef.current[fileName] = [];
       fileSizesRef.current[fileName] = fileSize;
@@ -98,7 +97,7 @@ function App() {
     });
 
     socket.on("fileChunk", ({ fileName, chunk, isLastChunk }) => {
-      console.log("Received fileChunk:", chunk.fileName);
+      // console.log("Received fileChunk:", chunk.fileName);
 
       const arr = new Uint8Array(chunk);
       const buffers = fileBuffersRef.current;
@@ -201,15 +200,11 @@ function App() {
       return;
     }
     socket.emit("joinRoom", { code: roomCode, joinedRoomPassword });
-    // joinRoom ? setpopUp(`👋 You joined the room ${roomCode}`) : "";
-    // setTimeout(() => setpopUp(""), 2000);
   };
 
   // chat sender
   const sendMessage = () => {
     if (message.trim() !== "") {
-      // socket.emit("chatMessage", message);
-
       socket.emit("chatMessage", {
         roomCode, // include the room
         msg: message,
@@ -284,22 +279,6 @@ function App() {
 
     readSlice(0);
   };
-
-  // 📦 Drag and Drop Handlers
-  // const handleDragOver = (e) => {
-  //   e.preventDefault();
-  //   setIsDragging(true);
-  // };
-  // const handleDragLeave = (e) => {
-  //   e.preventDefault();
-  //   setIsDragging(false);
-  // };
-  // const handleDrop = (e) => {
-  //   e.preventDefault();
-  //   setIsDragging(false);
-  //   const file = e.dataTransfer.files[0];
-  //   if (file) sendFile(file);
-  // };
 
   // Helper function for notifications
   const showNotification = (title, body) => {
@@ -394,50 +373,6 @@ function App() {
     }
   };
 
-  // const deleteFromSent = (index) => () => {
-  //   try {
-  //     const raw = localStorage.getItem("loggedInUser");
-  //     if (!raw) return;
-
-  //     const user = JSON.parse(raw);
-  //     const updatedSentData = [...(user.data?.saveSentData || [])];
-  //     updatedSentData.splice(index, 1); // remove the item at index
-  //     const updatedUser = {
-  //       ...user,
-  //       data: {
-  //         saveSentData: updatedSentData,
-  //         saveReceivedData: user.data?.saveReceivedData || [],
-  //       },
-  //     };
-  //     setLoggedInUser(updatedUser);
-  //     localStorage.setItem("loggedInUser", JSON.stringify(updatedUser));
-  //   } catch (err) {
-  //     console.error("❌ Error deleting sent file:", err);
-  //   }
-  // };
-
-  // const deleteFromReceive = (index) => () => {
-  //   try {
-  //     const raw = localStorage.getItem("loggedInUser");
-  //     if (!raw) return;
-
-  //     const user = JSON.parse(raw);
-  //     const updatedReceivedData = [...(user.data?.saveReceivedData || [])];
-  //     updatedReceivedData.splice(index, 1); // remove the item at index
-  //     const updatedUser = {
-  //       ...user,
-  //       data: {
-  //         saveReceivedData: updatedReceivedData,
-  //         saveSentData: user.data?.saveSentData || [],
-  //       },
-  //     };
-  //     setLoggedInUser(updatedUser);
-  //     localStorage.setItem("loggedInUser", JSON.stringify(updatedUser));
-  //   } catch (err) {
-  //     console.error("❌ Error deleting received file:", err);
-  //   }
-  // };
-
   return (
     <>
       {!joinedRoom ? (
@@ -452,7 +387,6 @@ function App() {
             joinedRoomPassword={joinedRoomPassword}
             setJoinedRoomPassword={setJoinedRoomPassword}
             error={error}
-            // deleteFromSent={deleteFromSent}
           />
         </>
       ) : (
@@ -473,262 +407,7 @@ function App() {
             sendMessage={sendMessage}
             message={message}
             setMessage={setMessage}
-            // deleteFromSent={deleteFromSent}
           />
-          {/* <div className="app"> */}
-          {/* {roomCode && joinedRoom && (
-              <div style={{ textAlign: "center", marginBottom: "20px" }}>
-                <h2>
-                  Room Code: <span style={{ color: "blue" }}>{roomCode}</span>
-                </h2>
-                <button
-                  onClick={() => {
-                    copyRoomCode(roomCode);
-                  }}
-                  style={{
-                    marginTop: "10px",
-                    padding: "5px 12px",
-                    cursor: "pointer",
-                    borderRadius: "6px",
-                    border: "1px solid #007bff",
-                    backgroundColor: "#007bff",
-                    color: "white",
-                    fontWeight: "bold",
-                  }}
-                >
-                  Copy Room Code
-                </button>
-
-                <button
-                  onClick={leaveRoom}
-                  style={{
-                    padding: "6px 14px",
-                    borderRadius: "6px",
-                    border: "none",
-                    backgroundColor: "#dc3545",
-                    color: "white",
-                    cursor: "pointer",
-                  }}
-                >
-                  Leave Room
-                </button>
-              </div>
-            )} */}
-          {/* <main> */}
-          {/* Sidebar - Active Users */}
-          {/* <aside className="sidebar-users">
-                <h3>Users in Room</h3>
-                <ul style={{ listStyle: "none", padding: 0 }}>
-                  {users.map((u) => (
-                    <li
-                      key={u.id}
-                      style={{
-                        padding: "6px 8px",
-                        margin: "4px 0",
-                        borderRadius: "6px",
-                        backgroundColor:
-                          u.id === socket.id ? "#007bff" : "#eee",
-                        color: u.id === socket.id ? "white" : "black",
-                        fontWeight: u.id === socket.id ? "bold" : "normal",
-                      }}
-                    >
-                      {u.id === socket.id
-                        ? loggedInUser
-                          ? loggedInUser.name
-                          : u.name
-                        : `Unknown User ${u.id.slice(0, 3)}`}
-                    </li>
-                  ))}
-                </ul>
-              </aside> */}
-
-          {/* chat check */}
-          {/* <section className="chat">
-                <h2>Chat Room</h2>
-                <div className="chat-box">
-                  {chat.map((c, i) => (
-                    <div
-                      key={i}
-                      className={`chat-message ${
-                        c.user === "system"
-                          ? "system"
-                          : c.user === socket.id
-                          ? "me"
-                          : "other"
-                      }`}
-                    >
-                      <div className="bubble">
-                        <p>{c.text}</p>
-
-                        {c.user !== "system" && (
-                          <span className="time">
-                            {new Date().toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="chat-input">
-                  <form
-                    action=""
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      sendMessage();
-                    }}
-                    style={{
-                      display: "flex",
-                      width: "100%",
-                      justifyContent: "space-around",
-                      alignItems: "center",
-                      gap: "10px",
-                    }}
-                  >
-                    <input
-                      type="text"
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      placeholder="Type a message..."
-                    />
-                    <button>Send</button>
-                  </form>
-                </div>
-              </section> */}
-
-          {/* file check */}
-          {/* <section className="files">
-                <h2>File Transfer</h2>
-
-                <div
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                  className={`drop-zone ${isDragging ? "dragging" : ""}`}
-                  style={{
-                    border: "2px dashed #007bff",
-                    padding: "40px",
-                    borderRadius: "10px",
-                    backgroundColor: isDragging ? "#e6f0ff" : "#fafafa",
-                    textAlign: "center",
-                    transition: "0.2s",
-                    cursor: "pointer",
-                  }}
-                >
-                  <p style={{ fontSize: "16px", color: "#555" }}>
-                    {isDragging
-                      ? "📂 Drop file here to send"
-                      : "Drag & Drop your file here or click below"}
-                  </p>
-                  <input
-                    type="file"
-                    onChange={sendFile}
-                    style={{ marginTop: "10px" }}
-                  />
-                </div>
-
-                {Object.keys(uploadProgress).length > 0 && (
-                  <div>
-                    <h3>Uploading...</h3>
-                    <ul>
-                      {Object.keys(uploadProgress).map((fileName) => (
-                        <li key={fileName}>
-                          <p>{fileName}</p>
-                          <progress
-                            value={uploadProgress[fileName]}
-                            max="100"
-                          ></progress>
-                          <span>{uploadProgress[fileName]}%</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                <div
-                  style={{ display: "flex", gap: "40px", marginTop: "20px" }}
-                >
-                  <div>
-                    <h3>Received Files:</h3>
-                    <ul>
-                      {Object.keys(downloadProgress).length > 0 && (
-                        <div>
-                          <h3>Downloading...</h3>
-                          <ul>
-                            {Object.keys(downloadProgress).map((fileName) => (
-                              <li key={fileName}>
-                                <p>{fileName}</p>
-                                <progress
-                                  value={downloadProgress[fileName]}
-                                  max="100"
-                                ></progress>
-                                <span>{downloadProgress[fileName]}%</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-
-                      {receivedFiles.map((f, i) => (
-                        <li key={i}>
-                          <a href={f.url} download={f.fileName}>
-                            {f.fileName}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h3>Sent Files:</h3>
-                    <ul>
-                      {sentFiles.map((f, i) => (
-                        <li key={i}>{f.fileName}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </section>*/}
-          {/* </main>  */}
-          {/* <main
-            className="save-data-container"
-            style={{
-              marginTop: "50px",
-            }}
-          >
-            <section>
-              <h2>Save received files</h2>
-              <ul>
-                {loggedInUser?.data?.saveReceivedData?.map((item, index) => (
-                  <li key={index}>
-                    {item.FileName} - {item.FileSize} bytes in room:{" "}
-                    {item.RoomCode}
-                    <span>
-                      <button onClick={deleteFromReceive(index)}>X</button>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-            <section>
-              <h2>Save sent files</h2>
-              <ul>
-                {loggedInUser?.data?.saveSentData?.map((item, index) => (
-                  <li key={index}>
-                    {item.FileName} - {item.FileSize} bytes in room:{" "}
-                    {item.RoomCode}
-                    <span>
-                      <button onClick={deleteFromSent(index)}>X</button>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          </main> */}
-          {/* </div> */}
         </>
       )}
 

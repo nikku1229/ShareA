@@ -81,7 +81,6 @@ function Home({
                 <img src={RoomIcon} alt="Room Icon" />
               </div>
               <div className="room-input-area">
-                {/* <input type="text" placeholder="Enter password to create" /> */}
                 <input
                   type="password"
                   placeholder="Enter password to create"
@@ -114,8 +113,6 @@ function Home({
                 <img src={RoomIcon} alt="Room Icon" />
               </div>
               <div className="room-input-area">
-                {/* <input type="text" placeholder="Enter room id" /> */}
-                {/* <input type="text" placeholder="Enter room password" /> */}
                 <input
                   type="text"
                   placeholder="Enter room code"
@@ -165,7 +162,6 @@ function Home({
               toggleSendBlockFunction={toggleSendBlockFunction}
               loggedInUser={loggedInUser}
               setLoggedInUser={setLoggedInUser}
-              // deleteFromSent={deleteFromSent}
             />
           </>
         )}
