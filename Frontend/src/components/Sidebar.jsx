@@ -2,7 +2,13 @@ import React from "react";
 import SidebarCloseIcon from "../assets/Icons/SidebarCloseIcon.svg";
 import { Link } from "react-router-dom";
 
-function Sidebar({ sidebarToggle, joinedRoom, chatToggle }) {
+function Sidebar({
+  sidebarToggle,
+  joinedRoom,
+  chatToggle,
+  toggleSendBlockFunction,
+  toggleReceivedBlockFunction,
+}) {
   return (
     <>
       <div className="sidebar-section">
@@ -15,10 +21,22 @@ function Sidebar({ sidebarToggle, joinedRoom, chatToggle }) {
         <div className="sidebar-links">
           <ul>
             <li>
-              <Link>Send Files</Link>
+              <Link
+                onClick={() => {
+                  toggleSendBlockFunction();
+                }}
+              >
+                Send Files
+              </Link>
             </li>
             <li>
-              <Link>Received Files</Link>
+              <Link
+                onClick={() => {
+                  toggleReceivedBlockFunction();
+                }}
+              >
+                Received Files
+              </Link>
             </li>
             {joinedRoom && (
               <li>

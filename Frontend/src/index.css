@@ -12,12 +12,13 @@
   --secondary-color: #f8fafc;
   --black: #0c0c0c;
   --white: #ffffff;
-  --gray: #9aa6b2;
+  --gray: #758694;
+  /* --gray: #9aa6b2; */
   --transparent: transparent;
 
   --shadow-primary: -5px -5px 10px #1c352d, 5px 5px 10px #1c352d;
-
   --shadow-secondary: -5px -5px 10px #0c0c0c, 5px 5px 10px #0c0c0c;
+  --shadow-box: 2px 2px 5px #0c0c0c, -2px -2px 5px #0c0c0c;
 
   --h1-font-size: 32px;
   --h2-font-size: 24px;
@@ -154,8 +155,11 @@ body {
 
       .profile-name p {
         padding-bottom: 10px;
-        color: var(--black);
-        font-size: var(--h2-font-size);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: var(--white);
+        font-size: var(--h3-font-size);
       }
 
       .logout-btn button {
@@ -862,6 +866,7 @@ body {
     max-width: 400px;
     display: flex;
     flex-direction: column;
+    background-color: var(--secondary-color);
 
     .chat-title {
       width: 100%;
@@ -913,7 +918,8 @@ body {
 
         .system {
           justify-content: center;
-          background-color: var(--secondary-color);
+          border: 1px solid var(--black);
+          border-radius: 10px;
           .bubble {
             max-width: 100%;
             display: flex;
@@ -924,7 +930,7 @@ body {
               display: flex;
               justify-content: center;
               align-items: center;
-              color: var(--gray);
+              color: var(--black);
             }
           }
         }
@@ -944,7 +950,7 @@ body {
 
           .bubble {
             background-color: var(--gray);
-            color: var(--black);
+            color: var(--white);
             border-bottom-left-radius: 0px;
           }
         }
@@ -976,7 +982,7 @@ body {
           }
         }
 
-        button{
+        button {
           width: 25%;
           padding: 6px 10px;
           border: 2px solid var(--black);
@@ -987,6 +993,138 @@ body {
           justify-content: center;
         }
       }
+    }
+  }
+}
+
+.save-data-block {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--secondary-color);
+  border: 1px solid var(--black);
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: var(--shadow-box);
+  display: flex;
+  flex-direction: column;
+  width: 800px;
+  max-width: 900px;
+  height: 55vh;
+  max-height: 70vh;
+  overflow-y: scroll;
+  -webkit-scrollbar-width: none;
+  scrollbar-width: none;
+
+  .top-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 20px;
+    gap: 20px;
+
+    .column-2 {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding-left: 50px;
+    }
+
+    .close-btn {
+      border: 2px solid var(--black);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 8px;
+      border-radius: 50%;
+      cursor: pointer;
+      margin-top: -10px;
+
+      img {
+        width: 34px;
+      }
+    }
+  }
+
+  .data-area {
+    height: 90%;
+    overflow-y: scroll;
+    -webkit-scrollbar-width: none;
+    scrollbar-width: none;
+
+    ul {
+      height: 100%;
+      li {
+        display: flex;
+        align-items: end;
+        padding: 0px 5px 5px 5px;
+
+        p {
+          display: flex;
+        }
+
+        .index-space {
+          display: flex;
+          gap: 30px;
+          width: 50%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+
+          .index {
+            width: 5%;
+          }
+          .file {
+            width: 90%;
+          }
+        }
+
+        span {
+          width: 25%;
+          display: flex;
+          justify-content: start;
+          align-items: start;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .index-room {
+          width: 20%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        span.img-span {
+          width: 5%;
+          cursor: pointer;
+          display: flex;
+          align-items: end;
+          justify-content: end;
+
+          img {
+            width: 24px;
+          }
+        }
+      }
+      .seperator {
+        margin-bottom: 10px;
+      }
+    }
+  }
+
+  .no-data-area {
+    height: 70%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+
+    p {
+      font-size: 12px;
     }
   }
 }

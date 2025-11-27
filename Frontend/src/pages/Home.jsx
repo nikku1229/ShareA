@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
+import SaveReceivedData from "../components/SaveReceivedData";
+import SaveSentData from "../components/SaveSentData";
 import users from "../context/User";
 import FullLogo from "../assets/Logos/ShareA-Logo-full.png";
 import RoomIcon from "../assets/Icons/RoomIcon.svg";
@@ -20,10 +22,26 @@ function Home({
   error,
 }) {
   const [loggedInUser, setLoggedInUser] = useState();
-
+  const [toggleSendBlock, setToggleSendBlock] = useState(false);
+  const [toggleReceivedBlock, setToggleReceivedBlock] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarToggle = () => {
     setSidebarOpen(!sidebarOpen);
+  };
+
+  const toggleSendBlockFunction = () => {
+    if (toggleReceivedBlock) {
+      setToggleReceivedBlock(false);
+    }
+    setToggleSendBlock(!toggleSendBlock);
+    sidebarToggle();
+  };
+  const toggleReceivedBlockFunction = () => {
+    if (toggleSendBlock) {
+      setToggleSendBlock(false);
+    }
+    setToggleReceivedBlock(!toggleReceivedBlock);
+    sidebarToggle();
   };
 
   useEffect(() => {
@@ -130,11 +148,35 @@ function Home({
         </div>
 
         {sidebarOpen ? (
-          <Sidebar sidebarToggle={sidebarToggle} />
+          <Sidebar
+            sidebarToggle={sidebarToggle}
+            toggleSendBlockFunction={toggleSendBlockFunction}
+            toggleReceivedBlockFunction={toggleReceivedBlockFunction}
+          />
         ) : (
           <div className="sidebar-hamburger-icon" onClick={sidebarToggle}>
             <img src={HamburgerIcon} alt="Hamburger Icon" />
           </div>
+        )}
+
+        {toggleSendBlock && (
+          <>
+            <SaveSentData
+              toggleSendBlockFunction={toggleSendBlockFunction}
+              loggedInUser={loggedInUser}
+              setLoggedInUser={setLoggedInUser}
+              // deleteFromSent={deleteFromSent}
+            />
+          </>
+        )}
+        {toggleReceivedBlock && (
+          <>
+            <SaveReceivedData
+              toggleReceivedBlockFunction={toggleReceivedBlockFunction}
+              loggedInUser={loggedInUser}
+              setLoggedInUser={setLoggedInUser}
+            />
+          </>
         )}
       </div>
     </>

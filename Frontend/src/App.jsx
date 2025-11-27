@@ -38,7 +38,10 @@ function App() {
 
     fetch(`${API_BASE}/api`)
       .then((res) => res.json())
-      .then((data) => setBackendMsg(data.message))
+      .then((data) => {
+        setBackendMsg(data.message);
+        console.log(data.message);
+      })
       .catch((err) => console.error("Frontend error:", err));
   }, []);
 
@@ -391,49 +394,49 @@ function App() {
     }
   };
 
-  const deleteFromSent = (index) => () => {
-    try {
-      const raw = localStorage.getItem("loggedInUser");
-      if (!raw) return;
+  // const deleteFromSent = (index) => () => {
+  //   try {
+  //     const raw = localStorage.getItem("loggedInUser");
+  //     if (!raw) return;
 
-      const user = JSON.parse(raw);
-      const updatedSentData = [...(user.data?.saveSentData || [])];
-      updatedSentData.splice(index, 1); // remove the item at index
-      const updatedUser = {
-        ...user,
-        data: {
-          saveSentData: updatedSentData,
-          saveReceivedData: user.data?.saveReceivedData || [],
-        },
-      };
-      setLoggedInUser(updatedUser);
-      localStorage.setItem("loggedInUser", JSON.stringify(updatedUser));
-    } catch (err) {
-      console.error("❌ Error deleting sent file:", err);
-    }
-  };
+  //     const user = JSON.parse(raw);
+  //     const updatedSentData = [...(user.data?.saveSentData || [])];
+  //     updatedSentData.splice(index, 1); // remove the item at index
+  //     const updatedUser = {
+  //       ...user,
+  //       data: {
+  //         saveSentData: updatedSentData,
+  //         saveReceivedData: user.data?.saveReceivedData || [],
+  //       },
+  //     };
+  //     setLoggedInUser(updatedUser);
+  //     localStorage.setItem("loggedInUser", JSON.stringify(updatedUser));
+  //   } catch (err) {
+  //     console.error("❌ Error deleting sent file:", err);
+  //   }
+  // };
 
-  const deleteFromReceive = (index) => () => {
-    try {
-      const raw = localStorage.getItem("loggedInUser");
-      if (!raw) return;
+  // const deleteFromReceive = (index) => () => {
+  //   try {
+  //     const raw = localStorage.getItem("loggedInUser");
+  //     if (!raw) return;
 
-      const user = JSON.parse(raw);
-      const updatedReceivedData = [...(user.data?.saveReceivedData || [])];
-      updatedReceivedData.splice(index, 1); // remove the item at index
-      const updatedUser = {
-        ...user,
-        data: {
-          saveReceivedData: updatedReceivedData,
-          saveSentData: user.data?.saveSentData || [],
-        },
-      };
-      setLoggedInUser(updatedUser);
-      localStorage.setItem("loggedInUser", JSON.stringify(updatedUser));
-    } catch (err) {
-      console.error("❌ Error deleting received file:", err);
-    }
-  };
+  //     const user = JSON.parse(raw);
+  //     const updatedReceivedData = [...(user.data?.saveReceivedData || [])];
+  //     updatedReceivedData.splice(index, 1); // remove the item at index
+  //     const updatedUser = {
+  //       ...user,
+  //       data: {
+  //         saveReceivedData: updatedReceivedData,
+  //         saveSentData: user.data?.saveSentData || [],
+  //       },
+  //     };
+  //     setLoggedInUser(updatedUser);
+  //     localStorage.setItem("loggedInUser", JSON.stringify(updatedUser));
+  //   } catch (err) {
+  //     console.error("❌ Error deleting received file:", err);
+  //   }
+  // };
 
   return (
     <>
@@ -449,6 +452,7 @@ function App() {
             joinedRoomPassword={joinedRoomPassword}
             setJoinedRoomPassword={setJoinedRoomPassword}
             error={error}
+            // deleteFromSent={deleteFromSent}
           />
         </>
       ) : (
@@ -469,10 +473,10 @@ function App() {
             sendMessage={sendMessage}
             message={message}
             setMessage={setMessage}
-
+            // deleteFromSent={deleteFromSent}
           />
           {/* <div className="app"> */}
-            {/* {roomCode && joinedRoom && (
+          {/* {roomCode && joinedRoom && (
               <div style={{ textAlign: "center", marginBottom: "20px" }}>
                 <h2>
                   Room Code: <span style={{ color: "blue" }}>{roomCode}</span>
@@ -510,9 +514,9 @@ function App() {
                 </button>
               </div>
             )} */}
-            {/* <main> */}
-              {/* Sidebar - Active Users */}
-              {/* <aside className="sidebar-users">
+          {/* <main> */}
+          {/* Sidebar - Active Users */}
+          {/* <aside className="sidebar-users">
                 <h3>Users in Room</h3>
                 <ul style={{ listStyle: "none", padding: 0 }}>
                   {users.map((u) => (
@@ -538,8 +542,8 @@ function App() {
                 </ul>
               </aside> */}
 
-              {/* chat check */}
-              {/* <section className="chat">
+          {/* chat check */}
+          {/* <section className="chat">
                 <h2>Chat Room</h2>
                 <div className="chat-box">
                   {chat.map((c, i) => (
@@ -595,8 +599,8 @@ function App() {
                 </div>
               </section> */}
 
-              {/* file check */}
-              {/* <section className="files">
+          {/* file check */}
+          {/* <section className="files">
                 <h2>File Transfer</h2>
 
                 <div
@@ -688,42 +692,42 @@ function App() {
                   </div>
                 </div>
               </section>*/}
-            {/* </main>  */}
-            {/* <main
-              className="save-data-container"
-              style={{
-                marginTop: "50px",
-              }}
-            >
-              <section>
-                <h2>Save received files</h2>
-                <ul>
-                  {loggedInUser?.data?.saveReceivedData?.map((item, index) => (
-                    <li key={index}>
-                      {item.FileName} - {item.FileSize} bytes in room:{" "}
-                      {item.RoomCode}
-                      <span>
-                        <button onClick={deleteFromReceive(index)}>X</button>
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-              <section>
-                <h2>Save sent files</h2>
-                <ul>
-                  {loggedInUser?.data?.saveSentData?.map((item, index) => (
-                    <li key={index}>
-                      {item.FileName} - {item.FileSize} bytes in room:{" "}
-                      {item.RoomCode}
-                      <span>
-                        <button onClick={deleteFromSent(index)}>X</button>
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            </main> */}
+          {/* </main>  */}
+          {/* <main
+            className="save-data-container"
+            style={{
+              marginTop: "50px",
+            }}
+          >
+            <section>
+              <h2>Save received files</h2>
+              <ul>
+                {loggedInUser?.data?.saveReceivedData?.map((item, index) => (
+                  <li key={index}>
+                    {item.FileName} - {item.FileSize} bytes in room:{" "}
+                    {item.RoomCode}
+                    <span>
+                      <button onClick={deleteFromReceive(index)}>X</button>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+            <section>
+              <h2>Save sent files</h2>
+              <ul>
+                {loggedInUser?.data?.saveSentData?.map((item, index) => (
+                  <li key={index}>
+                    {item.FileName} - {item.FileSize} bytes in room:{" "}
+                    {item.RoomCode}
+                    <span>
+                      <button onClick={deleteFromSent(index)}>X</button>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </main> */}
           {/* </div> */}
         </>
       )}
