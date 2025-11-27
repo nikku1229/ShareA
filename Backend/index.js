@@ -59,12 +59,12 @@ io.on("connection", (socket) => {
     socket.join(code);
     rooms[code].members.push(socket.id);
 
-    console.log(`Room ${code} created with password ${password}`);
+    // console.log(`Room ${code} created with password ${password}`);
     socket.emit("roomCreated", code);
 
     // Auto delete the room after 1 hour
     rooms[code].timeout = setTimeout(() => {
-      console.log(`⏱️ Room ${code} expired and is being closed`);
+      // console.log(`⏱️ Room ${code} expired and is being closed`);
 
       io.in(code).socketsLeave(code);
 
@@ -79,7 +79,7 @@ io.on("connection", (socket) => {
       name: `User-${socket.id.substring(0, 3)}`,
     });
 
-    console.log(`User ${socket.id} joined room ${code}`);
+    // console.log(`User ${socket.id} joined room ${code}`);
     socket.emit("roomJoined", code);
 
     // send updated users list
@@ -101,7 +101,7 @@ io.on("connection", (socket) => {
     socket.join(code);
     room.members.push(socket.id);
 
-    console.log(`User ${socket.id} joined room ${code}`);
+    // console.log(`User ${socket.id} joined room ${code}`);
     socket.emit("roomJoined", code);
 
     // store user
@@ -111,7 +111,7 @@ io.on("connection", (socket) => {
       name: `User-${socket.id.substring(0, 3)}`,
     });
 
-    console.log(`User ${socket.id} joined room ${code}`);
+    // console.log(`User ${socket.id} joined room ${code}`);
     socket.emit("roomJoined", code);
 
     // send updated users list
@@ -129,7 +129,7 @@ io.on("connection", (socket) => {
   // Leave room
   socket.on("leaveRoom", (code) => {
     socket.leave(code);
-    console.log(`User ${socket.id} left room ${code}`);
+    // console.log(`User ${socket.id} left room ${code}`);
 
     if (usersInRoom[code]) {
       usersInRoom[code] = usersInRoom[code].filter((u) => u.id !== socket.id);
@@ -148,7 +148,7 @@ io.on("connection", (socket) => {
   // chat messages
   socket.on("chatMessage", ({ roomCode, msg }) => {
     if (!roomCode) return;
-    console.log(`Message in ${roomCode}:`, msg);
+    // console.log(`Message in ${roomCode}:`, msg);
 
     // Broadcast to all connected clients
     io.to(roomCode).emit("chatMessage", { user: socket.id, text: msg });
@@ -157,7 +157,7 @@ io.on("connection", (socket) => {
   // File transfer (chunks)
   socket.on("fileChunk", ({ roomCode, fileName, chunk, isLastChunk }) => {
     if (!roomCode) return;
-    console.log(`Chunk for ${fileName} in ${roomCode} from ${socket.id}`);
+    // console.log(`Chunk for ${fileName} in ${roomCode} from ${socket.id}`);
 
     try {
       // Convert to Buffer (for stable binary transmission)
@@ -174,9 +174,9 @@ io.on("connection", (socket) => {
             .to(roomCode)
             .emit("fileComplete", { fileName, sender: socket.id });
         }, 100);
-        console.log(
-          `✅ File sent successfully: ${fileName} (${safeChunk.length} bytes)`
-        );
+        // console.log(
+        //   `✅ File sent successfully: ${fileName} (${safeChunk.length} bytes)`
+        // );
       }
     } catch (err) {
       console.error(`❌ File chunk error for ${fileName}:`, err.message);
@@ -192,9 +192,9 @@ io.on("connection", (socket) => {
   // File metadata
   socket.on("fileMeta", ({ roomCode, fileName, fileSize }) => {
     if (!roomCode) return;
-    console.log(
-      `File incoming in ${roomCode}: ${fileName} (${fileSize} bytes)`
-    );
+    // console.log(
+    //   `File incoming in ${roomCode}: ${fileName} (${fileSize} bytes)`
+    // );
 
     socket.to(roomCode).emit("fileMeta", { fileName, fileSize });
   });
