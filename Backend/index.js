@@ -2,13 +2,17 @@ import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import cors from "cors";
+import dotenv from "dotenv";
+dotenv.config();
+
+const PORT = process.env.PORT || 5000;
 
 const app = express();
 const server = createServer(app);
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://share-a-prototype.vercel.app"],
+    origin: [process.env.ShareA_Frontend_Local_URL, process.env.ShareA_Frontend_URL],
     methods: ["GET", "POST"],
     credentials: true,
   })
@@ -19,7 +23,7 @@ app.use(express.json());
 const io = new Server(server, {
   maxHttpBufferSize: 20e6, // ⬅️ 20 MB limit to prevent crashes
   cors: {
-    origin: ["http://localhost:5173", "https://share-a-prototype.vercel.app"],
+    origin: [process.env.ShareA_Frontend_Local_URL, process.env.ShareA_Frontend_URL],
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -232,7 +236,6 @@ app.get("/", (req, res) => {
   res.send("Backend is running for ShareA");
 });
 
-const PORT = 5000;
 server.listen(PORT, () =>
   console.log(`Backend running at http://localhost:${PORT}`)
 );
