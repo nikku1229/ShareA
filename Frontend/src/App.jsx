@@ -4,6 +4,7 @@ import Home from "./pages/Home";
 import Room from "./pages/Room";
 import Toast from "./components/Toast";
 import "./index.css";
+const process = import.meta.env;
 
 function App() {
   const [backendMsg, setBackendMsg] = useState("Loading...");
@@ -32,8 +33,10 @@ function App() {
   const receivedSizesRef = useRef({});
 
   useEffect(() => {
-    const API_BASE = "https://sharea-backend.onrender.com";
-    // const API_BASE = "http://localhost:5000";
+    const API_BASE =
+      process.VITE_Backend_URl ||
+      process.VITE_Local_Backend_URL ||
+      "http://localhost:5000";
 
     fetch(`${API_BASE}/api`)
       .then((res) => res.json())
