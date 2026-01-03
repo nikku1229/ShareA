@@ -7,10 +7,6 @@ function SaveSentData({
   loggedInUser,
   setLoggedInUser,
 }) {
-  useEffect(() => {
-    loggedInUser;
-  }, [loggedInUser]);
-
   const deleteFromSent = (index) => () => {
     try {
       const raw = localStorage.getItem("loggedInUser");

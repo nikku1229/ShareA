@@ -25,7 +25,7 @@ function Login() {
     }
 
     localStorage.setItem("loggedInUser", JSON.stringify(user));
-    alert(`Welcome ${user.name}!`);
+    window.dispatchEvent(new Event("storage"));
     navigate("/");
   };
 

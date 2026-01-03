@@ -185,7 +185,7 @@ function App() {
     } catch (err) {
       console.error("Failed parsing loggedInUser from localStorage:", err);
     }
-  }, []);
+  }, [loggedInUser]);
 
   // Create Room
   const createRoom = () => {
@@ -299,12 +299,6 @@ function App() {
     }
   }, []);
 
-  const copyRoomCode = (roomCode) => {
-    navigator.clipboard.writeText(roomCode);
-    setpopUp("✅ Room code copied!");
-    setTimeout(() => setpopUp(""), 2000);
-  };
-
   // 📌 Leave room
   const leaveRoom = () => {
     socket.emit("leaveRoom", roomCode); // notify server
@@ -342,7 +336,9 @@ function App() {
           saveReceivedData: user.data?.saveReceivedData || [],
         },
       };
-      setLoggedInUser(updatedUser);
+      setLoggedInUser(() => {
+        return updatedUser;
+      });
       localStorage.setItem("loggedInUser", JSON.stringify(updatedUser));
     } catch (err) {
       console.error("❌ Error saving sent file:", err);
@@ -369,7 +365,9 @@ function App() {
           saveSentData: user.data?.saveSentData || [],
         },
       };
-      setLoggedInUser(updatedUser);
+      setLoggedInUser(() => {
+        return updatedUser;
+      });
       localStorage.setItem("loggedInUser", JSON.stringify(updatedUser));
     } catch (err) {
       console.error("❌ Error saving sent file:", err);
@@ -381,6 +379,8 @@ function App() {
       {!joinedRoom ? (
         <>
           <Home
+            loggedInUser={loggedInUser}
+            setLoggedInUser={setLoggedInUser}
             createRoom={createRoom}
             createRoomPassword={createRoomPassword}
             setCreateRoomPassword={setCreateRoomPassword}
@@ -395,6 +395,8 @@ function App() {
       ) : (
         <>
           <Room
+            loggedInUser={loggedInUser}
+            setLoggedInUser={setLoggedInUser}
             roomCode={roomCode}
             joinedRoom={joinedRoom}
             setpopUp={setpopUp}

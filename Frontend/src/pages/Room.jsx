@@ -13,6 +13,8 @@ import ReceivedIcon from "../assets/Icons/ReceivedIcon.svg";
 import DownloadIcon from "../assets/Icons/DownloadIcon.svg";
 
 function Room({
+  loggedInUser,
+  setLoggedInUser,
   roomCode,
   joinedRoom,
   setpopUp,
@@ -29,7 +31,6 @@ function Room({
   message,
   setMessage,
 }) {
-  const [loggedInUser, setLoggedInUser] = useState();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [chatEnable, setChatEnable] = useState(false);
   const [isDragging, setIsDragging] = useState(false);

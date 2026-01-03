@@ -7,10 +7,6 @@ function SaveReceivedData({
   loggedInUser,
   setLoggedInUser,
 }) {
-  useEffect(() => {
-    loggedInUser;
-  }, [loggedInUser]);
-
   const deleteFromReceive = (index) => () => {
     try {
       const raw = localStorage.getItem("loggedInUser");

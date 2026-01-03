@@ -11,6 +11,8 @@ import RoomIcon from "../assets/Icons/RoomIcon.svg";
 import HamburgerIcon from "../assets/Icons/HamburgerIcon.svg";
 
 function Home({
+  loggedInUser,
+  setLoggedInUser,
   createRoom,
   createRoomPassword,
   setCreateRoomPassword,
@@ -21,7 +23,6 @@ function Home({
   setJoinedRoomPassword,
   error,
 }) {
-  const [loggedInUser, setLoggedInUser] = useState();
   const [toggleSendBlock, setToggleSendBlock] = useState(false);
   const [toggleReceivedBlock, setToggleReceivedBlock] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
