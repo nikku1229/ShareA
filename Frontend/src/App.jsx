@@ -185,7 +185,7 @@ function App() {
     } catch (err) {
       console.error("Failed parsing loggedInUser from localStorage:", err);
     }
-  }, [loggedInUser]);
+  }, []);
 
   // Create Room
   const createRoom = () => {
