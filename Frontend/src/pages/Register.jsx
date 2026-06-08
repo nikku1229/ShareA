@@ -5,17 +5,20 @@ import Logo from "../assets/Logos/ShareA-Logo-full.png";
 import GoogleIcon from "../assets/Icons/GoogleIcon.svg";
 import EmailIcon from "../assets/Icons/EmailIcon.svg";
 import BackButton from "../components/BackButton.jsx";
+import Toast from "../components/Toast.jsx";
+import { useApp } from "../context/AppContext";
 
 function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const { showToast, popUp } = useApp();
 
   const handleRegister = (e) => {
     e.preventDefault();
     if (!name || !email || !password) {
-      alert("All fields are required!");
+      showToast("All fields are required!", "error");
       return;
     }
 
@@ -23,18 +26,23 @@ function Register() {
     const userExists = users.some((u) => u.email === email);
 
     if (userExists) {
-      alert("User already registered. Please login.");
+      showToast("User already registered. Please login.", "error");
       return;
     }
 
     users.push({ name, email, password });
     localStorage.setItem("users", JSON.stringify(users));
-    alert("Registration successful! Please login now.");
+    showToast("Registration successful! Please login now.", "success");
     navigate("/login");
+  };
+
+  const handleMessage = () => {
+    showToast("This will coming soon!");
   };
 
   return (
     <>
+      {popUp && <Toast popUp={popUp} />}
       <div className="container">
         <div className="header">
           <div className="logo-favicon">
@@ -84,10 +92,10 @@ function Register() {
               </Link>
             </div>
             <div className="options-section">
-              <Link>
+              <Link onClick={handleMessage}>
                 <img src={GoogleIcon} alt="google-icon" />
               </Link>
-              <Link>
+              <Link onClick={handleMessage}>
                 <img src={EmailIcon} alt="google-icon" />
               </Link>
             </div>

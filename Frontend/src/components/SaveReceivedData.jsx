@@ -1,12 +1,15 @@
 import React, { useEffect } from "react";
 import SidebarCloseIcon from "../assets/Icons/SidebarCloseIcon.svg";
 import CrossIcon from "../assets/Icons/CrossIcon.svg";
+import { useApp } from "../context/AppContext";
 
 function SaveReceivedData({
   toggleReceivedBlockFunction,
   loggedInUser,
   setLoggedInUser,
 }) {
+  const { showToast } = useApp();
+
   const deleteFromReceive = (index) => () => {
     try {
       const raw = localStorage.getItem("loggedInUser");
@@ -24,8 +27,10 @@ function SaveReceivedData({
       };
       setLoggedInUser(updatedUser);
       localStorage.setItem("loggedInUser", JSON.stringify(updatedUser));
+      showToast("File deleted successfully", "success");
     } catch (err) {
       console.error("❌ Error deleting received file:", err);
+      showToast("Error deleting file", "error");
     }
   };
 
@@ -65,7 +70,7 @@ function SaveReceivedData({
                   <>
                     {loggedInUser?.data?.saveReceivedData?.map(
                       (item, index) => (
-                        <>
+                        <React.Fragment key={index}>
                           <li key={index}>
                             <div className="index-space">
                               <p className="index">{index + 1}.</p>
@@ -81,8 +86,8 @@ function SaveReceivedData({
                             </span>
                           </li>
                           <div className="seperator"></div>
-                        </>
-                      )
+                        </React.Fragment>
+                      ),
                     )}
                   </>
                 )}
