@@ -1,7 +1,8 @@
-function users() {
+function getUsers() {
   try {
     const raw = localStorage.getItem("loggedInUser");
-    if (!raw) return; // no user stored yet
+    if (!raw) return null;
+
     const userDetail = JSON.parse(raw);
     if (userDetail) {
       const normalized = {
@@ -16,9 +17,8 @@ function users() {
     return userDetail;
   } catch (err) {
     console.error("Failed parsing loggedInUser from localStorage:", err);
-
-    return err;
+    return null;
   }
 }
 
-export default users();
+export default getUsers;
