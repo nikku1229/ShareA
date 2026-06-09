@@ -63,7 +63,7 @@ function Login() {
           </div>
         </div>
 
-        <div className="form-box">
+        <div className="form-box login">
           <div className="alternate-form-section login-msg">
             <div className="primary-logo">
               <Link to="/">
@@ -83,7 +83,7 @@ function Login() {
             </p>
           </div>
 
-          <div className="form-section">
+          <div className="form-section login">
             <h1>Login</h1>
             <form onSubmit={handleLogin} className="form">
               <input
