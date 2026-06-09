@@ -32,9 +32,10 @@ export const SocketProvider = ({ children }) => {
   const connectionPromiseRef = useRef(null);
   const roomJoinedRef = useRef(false);
 
-  const fileBuffersRef = useRef({});
-  const fileSizesRef = useRef({});
-  const receivedSizesRef = useRef({});
+  const fileBuffersRef = useRef(new Map());
+  const fileSizesRef = useRef(new Map());
+  const receivedSizesRef = useRef(new Map());
+  const fileTransferIdRef = useRef(0);
 
   const saveUserReceivedData = (fileName, fileSize, currentRoomCode) => {
     const newEntry = {
@@ -62,20 +63,16 @@ export const SocketProvider = ({ children }) => {
     }
   };
 
-  // Single connection function that reuses promises
   const connectSocket = () => {
-    // If already connected, return resolved promise
     if (socket.connected) {
       setIsConnected(true);
       return Promise.resolve();
     }
 
-    // If connection is in progress, return the existing promise
     if (connectionPromiseRef.current) {
       return connectionPromiseRef.current;
     }
 
-    // Start new connection
     connectionPromiseRef.current = new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
         connectionPromiseRef.current = null;
@@ -109,7 +106,6 @@ export const SocketProvider = ({ children }) => {
     return connectionPromiseRef.current;
   };
 
-  // Disconnect socket manually
   const disconnectSocket = () => {
     if (socket.connected && !roomJoinedRef.current) {
       socket.disconnect();
@@ -166,44 +162,45 @@ export const SocketProvider = ({ children }) => {
       setUsersList(roomUsers);
     });
 
-    socket.on("fileMeta", ({ fileName, fileSize }) => {
-      fileBuffersRef.current[fileName] = [];
-      fileSizesRef.current[fileName] = fileSize;
-      receivedSizesRef.current[fileName] = 0;
-      setDownloadProgress((prev) => ({ ...prev, [fileName]: 0 }));
+    socket.on("fileMeta", ({ fileName, fileSize, transferId }) => {
+      fileBuffersRef.current.set(transferId, []);
+      fileSizesRef.current.set(transferId, fileSize);
+      receivedSizesRef.current.set(transferId, 0);
+      setDownloadProgress((prev) => ({ ...prev, [transferId]: 0 }));
     });
 
-    socket.on("fileChunk", ({ fileName, chunk, isLastChunk }) => {
+    socket.on("fileChunk", ({ fileName, chunk, isLastChunk, transferId }) => {
       const arr = new Uint8Array(chunk);
       const buffers = fileBuffersRef.current;
 
-      if (!fileSizesRef.current[fileName]) {
-        console.warn(`Missing metadata for ${fileName}, skipping chunk`);
+      if (!fileSizesRef.current.has(transferId)) {
+        console.warn(
+          `Missing metadata for transfer ${transferId}, skipping chunk`,
+        );
         return;
       }
 
-      if (!buffers[fileName]) buffers[fileName] = [];
-      if (!receivedSizesRef.current[fileName])
-        receivedSizesRef.current[fileName] = 0;
+      if (!buffers.get(transferId)) buffers.set(transferId, []);
 
-      buffers[fileName].push(arr);
-      receivedSizesRef.current[fileName] += arr.byteLength;
+      const received = receivedSizesRef.current.get(transferId) || 0;
+      buffers.get(transferId).push(arr);
+      receivedSizesRef.current.set(transferId, received + arr.byteLength);
 
+      const total = fileSizesRef.current.get(transferId) || 1;
       const percent = Math.round(
-        (receivedSizesRef.current[fileName] / fileSizesRef.current[fileName]) *
-          100,
+        (receivedSizesRef.current.get(transferId) / total) * 100,
       );
-      setDownloadProgress((prev) => ({ ...prev, [fileName]: percent }));
+      setDownloadProgress((prev) => ({ ...prev, [transferId]: percent }));
 
       if (isLastChunk) {
-        const fileBlob = new Blob(buffers[fileName]);
+        const fileBlob = new Blob(buffers.get(transferId));
         const url = URL.createObjectURL(fileBlob);
-        setReceivedFiles((prev) => [...prev, { fileName, url }]);
+        setReceivedFiles((prev) => [...prev, { fileName, url, transferId }]);
 
         setTimeout(() => {
           setDownloadProgress((prev) => {
             const updated = { ...prev };
-            delete updated[fileName];
+            delete updated[transferId];
             return updated;
           });
         }, 500);
@@ -213,13 +210,13 @@ export const SocketProvider = ({ children }) => {
         const currentRoomCode = socket.currentRoom || roomCode || "";
         saveUserReceivedData(
           fileName,
-          fileSizesRef.current[fileName],
+          fileSizesRef.current.get(transferId),
           currentRoomCode,
         );
 
-        delete buffers[fileName];
-        delete fileSizesRef.current[fileName];
-        delete receivedSizesRef.current[fileName];
+        buffers.delete(transferId);
+        fileSizesRef.current.delete(transferId);
+        receivedSizesRef.current.delete(transferId);
       }
     });
 

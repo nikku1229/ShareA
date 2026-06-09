@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { useSocket } from "../context/SocketContext";
 import { useApp } from "../context/AppContext";
 
@@ -11,6 +11,7 @@ export const useFileTransfer = () => {
     showToast,
     setLoggedInUser,
   } = useApp();
+  const transferIdRef = useRef(0);
 
   const saveUserSentData = useCallback(
     (fileName, fileSize, currentRoomCode) => {
@@ -43,7 +44,17 @@ export const useFileTransfer = () => {
 
   const sendFile = useCallback(
     async (file) => {
-      if (!file) return;
+      if (!file) {
+        showToast("No file selected", "error");
+        return;
+      }
+
+      if (!socket.connected) {
+        showToast("Not connected to server", "error");
+        return;
+      }
+
+      const transferId = `${Date.now()}-${transferIdRef.current++}-${file.name}`;
 
       const chunkSize = 128 * 1024;
       const totalChunks = Math.ceil(file.size / chunkSize);
@@ -52,6 +63,7 @@ export const useFileTransfer = () => {
         roomCode,
         fileName: file.name,
         fileSize: file.size,
+        transferId,
       });
 
       let offset = 0;
@@ -60,6 +72,7 @@ export const useFileTransfer = () => {
       const readSlice = (o) => {
         const slice = file.slice(o, o + chunkSize);
         const reader = new FileReader();
+
         reader.onload = (e) => {
           const chunk = e.target.result;
           const isLastChunk = offset + chunkSize >= file.size;
@@ -69,19 +82,24 @@ export const useFileTransfer = () => {
             fileName: file.name,
             chunk: new Uint8Array(chunk),
             isLastChunk,
+            transferId,
           });
 
           chunkIndex++;
+          const progressPercent = Math.round((chunkIndex / totalChunks) * 100);
           setUploadProgress((prev) => ({
             ...prev,
-            [file.name]: Math.round((chunkIndex / totalChunks) * 100),
+            [transferId]: progressPercent,
           }));
 
           offset += chunkSize;
           if (!isLastChunk) {
             setTimeout(() => readSlice(offset), 80);
           } else {
-            setSentFiles((prev) => [...prev, { fileName: file.name }]);
+            setSentFiles((prev) => [
+              ...prev,
+              { fileName: file.name, transferId },
+            ]);
 
             const currentRoomCode = socket.currentRoom || roomCode || "";
             saveUserSentData(file.name, file.size, currentRoomCode);
@@ -89,7 +107,7 @@ export const useFileTransfer = () => {
             setTimeout(() => {
               setUploadProgress((prev) => {
                 const copy = { ...prev };
-                delete copy[file.name];
+                delete copy[transferId];
                 return copy;
               });
             }, 1000);
@@ -97,6 +115,12 @@ export const useFileTransfer = () => {
             showToast(`File "${file.name}" sent successfully`, "success");
           }
         };
+
+        reader.onerror = (error) => {
+          console.error("File read error:", error);
+          showToast(`Error reading file: ${file.name}`, "error");
+        };
+
         reader.readAsArrayBuffer(slice);
       };
 

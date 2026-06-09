@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import ChatBox from "../components/ChatBox";
@@ -42,6 +42,8 @@ function Room() {
   const [toggleSendBlock, setToggleSendBlock] = useState(false);
   const [toggleReceivedBlock, setToggleReceivedBlock] = useState(false);
 
+  const fileInputRef = useRef(null);
+
   useEffect(() => {
     const raw = localStorage.getItem("loggedInUser");
     if (raw) setLoggedInUser(JSON.parse(raw));
@@ -74,14 +76,29 @@ function Room() {
     e.preventDefault();
     setIsDragging(true);
   };
+
   const handleDragLeave = (e) => {
     e.preventDefault();
     setIsDragging(false);
   };
+
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
-    sendFile(e.dataTransfer.files[0]);
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      sendFile(file);
+    }
+  };
+
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      sendFile(file);
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   return (
@@ -146,8 +163,9 @@ function Room() {
                   className={`drop-zone ${isDragging ? "dragging" : ""}`}
                 >
                   <input
+                    ref={fileInputRef}
                     type="file"
-                    onChange={(e) => sendFile(e.target.files[0])}
+                    onChange={handleFileSelect}
                     id="customFile"
                     className="file-send-input"
                   />

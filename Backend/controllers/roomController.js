@@ -17,7 +17,6 @@ export const roomController = (io, socket) => {
       socket.emit("roomJoined", code);
 
       io.to(code).emit("updateUsers", roomService.getUsersInRoom(code));
-
       roomService.setRoomTimeout(code, io);
     },
 
@@ -59,20 +58,31 @@ export const roomController = (io, socket) => {
       io.to(roomCode).emit("chatMessage", { user: socket.id, text: msg });
     },
 
-    handleFileChunk: ({ roomCode, fileName, chunk, isLastChunk }) => {
+    handleFileChunk: ({
+      roomCode,
+      fileName,
+      chunk,
+      isLastChunk,
+      transferId,
+    }) => {
       if (!roomCode) return;
 
       try {
         const safeChunk = Buffer.from(chunk);
-        socket
-          .to(roomCode)
-          .emit("fileChunk", { fileName, chunk: safeChunk, isLastChunk });
+        socket.to(roomCode).emit("fileChunk", {
+          fileName,
+          chunk: safeChunk,
+          isLastChunk,
+          transferId,
+        });
 
         if (isLastChunk) {
           setTimeout(() => {
-            socket
-              .to(roomCode)
-              .emit("fileComplete", { fileName, sender: socket.id });
+            socket.to(roomCode).emit("fileComplete", {
+              fileName,
+              sender: socket.id,
+              transferId,
+            });
           }, 100);
         }
       } catch (err) {
@@ -80,9 +90,9 @@ export const roomController = (io, socket) => {
       }
     },
 
-    handleFileMeta: ({ roomCode, fileName, fileSize }) => {
+    handleFileMeta: ({ roomCode, fileName, fileSize, transferId }) => {
       if (!roomCode) return;
-      socket.to(roomCode).emit("fileMeta", { fileName, fileSize });
+      socket.to(roomCode).emit("fileMeta", { fileName, fileSize, transferId });
     },
 
     handleDisconnect: () => {
