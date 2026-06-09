@@ -24,7 +24,6 @@ function Room() {
     setLoggedInUser,
     roomCode,
     joinedRoom,
-    setPopUp,
     sentFiles,
     receivedFiles,
     uploadProgress,
@@ -33,7 +32,8 @@ function Room() {
   } = useApp();
 
   const { leaveRoom } = useRoom();
-  const { sendFile } = useFileTransfer();
+  const { sendFiles, getQueueStatus, activeUploads, queuedFiles } =
+    useFileTransfer();
   const { disconnectSocket } = useSocket();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -41,6 +41,7 @@ function Room() {
   const [isDragging, setIsDragging] = useState(false);
   const [toggleSendBlock, setToggleSendBlock] = useState(false);
   const [toggleReceivedBlock, setToggleReceivedBlock] = useState(false);
+  const [queueInfo, setQueueInfo] = useState({ queued: 0, active: 0 });
 
   const fileInputRef = useRef(null);
 
@@ -48,6 +49,15 @@ function Room() {
     const raw = localStorage.getItem("loggedInUser");
     if (raw) setLoggedInUser(JSON.parse(raw));
   }, [setLoggedInUser]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const status = getQueueStatus();
+      setQueueInfo(status);
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, [getQueueStatus]);
 
   useEffect(() => {
     const handleBeforeUnload = () => {
@@ -85,16 +95,16 @@ function Room() {
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
-    const file = e.dataTransfer.files[0];
-    if (file) {
-      sendFile(file);
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
+      sendFiles(files);
     }
   };
 
   const handleFileSelect = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      sendFile(file);
+    const files = Array.from(e.target.files);
+    if (files.length > 0) {
+      sendFiles(files);
     }
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -165,6 +175,7 @@ function Room() {
                   <input
                     ref={fileInputRef}
                     type="file"
+                    multiple
                     onChange={handleFileSelect}
                     id="customFile"
                     className="file-send-input"
@@ -189,12 +200,16 @@ function Room() {
                   </div>
                   <div className="list-file">
                     <ul>
-                      {sentFiles.length ? (
-                        sentFiles.map((f, i) => (
-                          <div key={i} className="list-item">
+                      {sentFiles.length !== 0 ? (
+                        sentFiles.slice().map((f, i) => (
+                          <div key={f.transferId || i} className="list-item">
                             <li className="sended">
-                              <p>{i + 1}.</p>
-                              <p className="text-ellipsis">{f.fileName}</p>
+                              <p>{sentFiles.length - i}.</p>
+                              <p className="text-ellipsis" title={f.fileName}>
+                                {f.fileName.length > 30
+                                  ? f.fileName.substring(0, 27) + "..."
+                                  : f.fileName}
+                              </p>
                             </li>
                             <div className="seperator"></div>
                           </div>
@@ -217,13 +232,17 @@ function Room() {
                   </div>
                   <div className="list-file">
                     <ul>
-                      {receivedFiles.length ? (
-                        receivedFiles.map((f, i) => (
-                          <div key={i} className="list-item">
+                      {receivedFiles.length !== 0 ? (
+                        receivedFiles.slice().map((f, i) => (
+                          <div key={f.transferId || i} className="list-item">
                             <li className="received">
                               <div className="r-file-info">
-                                <p>{i + 1}.</p>
-                                <p className="text-ellipsis">{f.fileName}</p>
+                                <p>{receivedFiles.length - i}.</p>
+                                <p className="text-ellipsis" title={f.fileName}>
+                                  {f.fileName.length > 30
+                                    ? f.fileName.substring(0, 27) + "..."
+                                    : f.fileName}
+                                </p>
                               </div>
                               <a href={f.url} download={f.fileName}>
                                 <img src={DownloadIcon} alt="Download Icon" />
