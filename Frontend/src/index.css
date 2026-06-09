@@ -411,6 +411,7 @@ body {
   align-items: end;
   gap: 30px;
   transition: all 0.3s ease;
+  z-index: 2;
 
   .toggle-sidebar-btn {
     width: 100%;
@@ -665,6 +666,7 @@ body {
         flex-direction: column;
         width: 400px;
         max-height: 250px;
+        position: relative;
 
         .title {
           display: flex;
@@ -675,8 +677,8 @@ body {
 
           .block-icon {
             position: absolute;
-            margin-top: -60px;
-            margin-right: -395px;
+            right: -5%;
+            top: -20%;
             padding: 15px;
             border: 2px solid var(--black);
             border-radius: 50%;
@@ -744,6 +746,10 @@ body {
             h3 {
               font-size: var(--h3-font-size);
               color: var(--black);
+            }
+
+            p {
+              text-align: center;
             }
           }
         }
@@ -1142,5 +1148,319 @@ body {
   100% {
     opacity: 0;
     transform: translateY(20px);
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  .home-full-logo {
+    width: 300px;
+    padding-top: 0px;
+  }
+
+  .sidebar-section {
+    width: 30vw;
+  }
+
+  .room-sections {
+    gap: 20px !important;
+  }
+
+  .rooms-credentials {
+    width: 100%;
+    padding: 0px 30px;
+  }
+
+  .back-button,
+  .sidebar-hamburger-icon {
+    bottom: 30px;
+    left: 30px;
+  }
+
+  .form-box {
+    justify-content: center;
+    gap: 50px;
+    padding: 0px 30px;
+  }
+
+  .alternate-form-section {
+    .primary-logo {
+      width: 200px !important;
+    }
+  }
+
+  .form-section.login {
+    padding: 0px !important;
+  }
+
+  .form-section.register {
+    padding: 0px !important;
+  }
+
+  .room-area {
+    gap: 0px !important;
+    padding: 0px 20px !important;
+  }
+
+  .chat-container {
+    padding-left: 0px !important;
+    padding-right: 10px !important;
+  }
+
+  .data-blocks.col-layout {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+
+  .data-blocks {
+    gap: 30px !important;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .room-sections {
+    padding: 30px 20px 50px !important;
+    display: grid !important;
+    grid-template-columns: auto auto;
+    grid-template-rows: auto auto;
+  }
+
+  .room-input-area,
+  .room-btn-area {
+    grid-row-start: 2;
+
+    .room-btn {
+      margin-top: 0px !important  ;
+    }
+  }
+
+  .room-area{
+    flex-direction: column-reverse;
+    width: 100%;
+
+    .chat-container{
+      width: 100%;
+
+      .chatbox-block{
+        width: 100% !important;
+      }
+    }
+  }
+
+  .room-btn-area {
+    display: flex;
+    justify-content: end;
+  }
+
+  .data-blocks {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .sidebar-section {
+    width: 40vw;
+  }
+
+  .home-full-logo {
+    width: 200px;
+    padding-top: 0px;
+  }
+
+  .room-sections {
+    padding: 30px 0px 50px !important;
+
+    input {
+      width: 100%;
+    }
+  }
+
+  .room-input-area {
+    flex-wrap: wrap;
+
+    input {
+      width: 300px;
+    }
+  }
+
+  .room-btn-area {
+    width: fit-content !important;
+  }
+
+  .user-btn {
+    padding: 5px;
+    width: 55px !important;
+    height: 55px !important;
+  }
+
+  .profile-details {
+    margin-left: -145px !important;
+  }
+
+  .back-button,
+  .sidebar-hamburger-icon {
+    width: 50px;
+    height: 50px;
+
+    img {
+      width: 30px !important;
+    }
+  }
+
+  .sidebar-close-btn {
+    img {
+      width: 25px !important;
+    }
+  }
+
+  .form-box {
+    justify-content: space-between;
+    gap: 30px !important;
+    padding: 0px 30px;
+
+    .change-page-msg {
+      text-align: center;
+    }
+  }
+
+  .alternate-form-section {
+    padding: 50px 20px !important;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .header {
+    padding: 10px 20px !important;
+    height: 10vh;
+  }
+
+  .rooms-credentials {
+    padding: 0px 20px;
+  }
+
+  .back-button,
+  .sidebar-hamburger-icon {
+    left: 20px !important;
+  }
+
+  .user-btn {
+    width: 45px !important;
+    height: 45px !important;
+  }
+
+  .profile-details {
+    padding: 10px !important;
+    margin-left: -155px !important;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .home-full-logo {
+    width: 150px !important;
+    padding-top: 0px;
+  }
+
+  .room-sections {
+    padding: 10px 0px 20px !important;
+    display: grid !important;
+    grid-template-columns: auto;
+    grid-template-rows: auto auto auto;
+  }
+
+  .room-input-area,
+  .room-btn-area {
+    grid-row-start: inherit;
+  }
+
+  .room-input-area {
+    input {
+      max-width: 300px;
+    }
+  }
+
+  .error-page {
+    padding: 0px 20px !important;
+
+    img {
+      width: 100px !important;
+    }
+
+    h1 {
+      font-size: var(--h3-font-size);
+    }
+
+    p {
+      text-align: center;
+    }
+  }
+
+  .form-box {
+    flex-direction: column;
+    justify-content: center;
+    align-items: start;
+    padding: 0px 20px !important;
+
+    .alternate-form-section {
+      width: 100%;
+      border: 2px solid var(--black);
+      border-radius: 20px;
+      padding: 20px 10px !important;
+      gap: 5px;
+    }
+
+    .primary-logo {
+      width: 100px !important;
+      margin-bottom: 0px !important;
+    }
+
+    .options-section {
+      margin-bottom: 0px !important;
+
+      img {
+        width: 22px !important;
+        height: 22px !important;
+      }
+    }
+  }
+
+  .form-box.login {
+    flex-direction: column-reverse;
+  }
+
+  .form-section {
+    width: 100% !important;
+
+    .form {
+      padding-bottom: 0px !important;
+    }
+  }
+
+  .header-btn {
+    padding: 10px 20px !important;
+  }
+
+  .header-buttons {
+    gap: 5px !important;
+  }
+
+  .toast {
+    max-width: 250px !important;
+    right: 20px;
+  }
+
+  .sidebar-section {
+    width: 70vw;
+  }
+}
+
+@media screen and (max-width: 350px) {
+  .room-input-area {
+    input {
+      width: 100%;
+    }
+  }
+
+  .sidebar-section {
+    width: 80vw;
   }
 }
