@@ -288,7 +288,7 @@ body {
 .sidebar-hamburger-icon {
   width: 70px;
   height: 70px;
-  position: absolute;
+  position: fixed;
   bottom: 50px;
   left: 50px;
   padding: 25px;
@@ -496,7 +496,7 @@ body {
 }
 
 .leave-room-btn {
-  position: absolute;
+  position: fixed;
   bottom: 50px;
   right: 70px;
 
@@ -770,7 +770,7 @@ body {
 
 /* Room users */
 .sidebar-user-details {
-  position: absolute;
+  position: fixed;
   top: 30%;
   right: 0;
   width: auto;
@@ -1203,7 +1203,7 @@ body {
 
   .chat-container {
     padding-left: 0px !important;
-    padding-right: 10px !important;
+    padding-right: 0px !important;
   }
 
   .data-blocks.col-layout {
@@ -1213,6 +1213,16 @@ body {
 
   .data-blocks {
     gap: 30px !important;
+  }
+
+  .leave-room-btn {
+    bottom: 30px !important;
+    right: 30px !important;
+  }
+
+  .leave-room-btn,
+  .sidebar-hamburger-icon {
+    z-index: 2;
   }
 }
 
@@ -1233,14 +1243,14 @@ body {
     }
   }
 
-  .room-area{
+  .room-area {
     flex-direction: column-reverse;
     width: 100%;
 
-    .chat-container{
+    .chat-container {
       width: 100%;
 
-      .chatbox-block{
+      .chatbox-block {
         width: 100% !important;
       }
     }
@@ -1254,6 +1264,28 @@ body {
   .data-blocks {
     flex-wrap: wrap;
     justify-content: center;
+    align-items: center;
+    padding-top: 50px !important;
+
+    .data-block {
+      width: 80% !important;
+    }
+  }
+
+  .chat-container {
+    padding-top: 0px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .chatbox-block {
+      max-width: 80%;
+      width: 80% !important ;
+    }
+  }
+
+  .save-data-block {
+    max-width: 90%;
   }
 }
 
@@ -1325,6 +1357,39 @@ body {
 
   .alternate-form-section {
     padding: 50px 20px !important;
+  }
+
+  .data-blocks {
+    padding-bottom: 20px !important;
+    padding-top: 30px !important;
+  }
+
+  .sidebar-user-details {
+    padding: 15px 10px !important;
+  }
+
+  .sidebar-user {
+    padding: 10px 8px !important;
+    font-size: 12px !important;
+  }
+
+  .toast {
+    z-index: 3;
+
+    span {
+      flex: 1;
+    }
+  }
+
+  .data-area {
+    .list-item {
+      li {
+        flex-wrap: nowrap;
+      }
+    }
+    li {
+      flex-wrap: wrap;
+    }
   }
 }
 
@@ -1421,6 +1486,10 @@ body {
         height: 22px !important;
       }
     }
+
+    .form-button {
+      margin-top: 0px !important;
+    }
   }
 
   .form-box.login {
@@ -1451,6 +1520,53 @@ body {
   .sidebar-section {
     width: 70vw;
   }
+
+  .data-blocks.col-layout {
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+  }
+
+  .data-blocks {
+    .data-block {
+      width: 100% !important;
+      max-width: 100%;
+    }
+  }
+
+  .chat-container {
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+  }
+
+  .chatbox-block {
+    max-width: 100% !important;
+  }
+
+  .room-code {
+    h1 {
+      font-size: var(--h2-font-size);
+
+      img {
+        width: 18px;
+      }
+    }
+  }
+
+  .save-data-block {
+    padding: 20px;
+
+    .column-1 {
+      display: none;
+    }
+
+    .column-2 {
+      padding-left: 0px !important;
+    }
+  }
+
+  .close-btn img {
+    width: 20px !important;
+  }
 }
 
 @media screen and (max-width: 350px) {
@@ -1462,5 +1578,13 @@ body {
 
   .sidebar-section {
     width: 80vw;
+  }
+
+  .room-code-detail {
+    padding-top: 20px !important;
+  }
+
+  .data-area {
+    padding-top: 20px !important;
   }
 }
