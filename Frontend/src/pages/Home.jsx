@@ -10,6 +10,8 @@ import { useSocket } from "../context/SocketContext";
 import FullLogo from "../assets/Logos/ShareA-Logo-full.png";
 import RoomIcon from "../assets/Icons/RoomIcon.svg";
 import HamburgerIcon from "../assets/Icons/HamburgerIcon.svg";
+import EyeBtn from "../assets/Icons/EyeIcon.svg";
+import EyeCloseBtn from "../assets/Icons/EyeOffIcon.svg";
 
 function Home() {
   const {
@@ -31,6 +33,8 @@ function Home() {
   const [toggleSendBlock, setToggleSendBlock] = useState(false);
   const [toggleReceivedBlock, setToggleReceivedBlock] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [togglePasswordInput, setTogglePasswordInput] = useState(false);
+  const [toggleJoinPasswordInput, setToggleJoinPasswordInput] = useState(false);
 
   const sidebarToggle = () => setSidebarOpen(!sidebarOpen);
 
@@ -84,13 +88,21 @@ function Home() {
             <img src={RoomIcon} alt="Room Icon" />
           </div>
           <div className="room-input-area">
-            <input
-              type="password"
-              placeholder="Enter password to create"
-              value={createRoomPassword}
-              onChange={(e) => setCreateRoomPassword(e.target.value)}
-              required
-            />
+            <div className="password">
+              <input
+                type={togglePasswordInput ? "text" : "password"}
+                placeholder="Enter password..."
+                value={createRoomPassword}
+                onChange={(e) => setCreateRoomPassword(e.target.value)}
+                required
+              />
+              <img
+                src={togglePasswordInput ? EyeBtn : EyeCloseBtn}
+                alt={togglePasswordInput ? "Hide" : "Show"}
+                className="eye-toggle-btn"
+                onClick={() => setTogglePasswordInput(!togglePasswordInput)}
+              />
+            </div>
           </div>
           <div className="room-btn-area">
             <button className="room-btn">Create</button>
@@ -118,13 +130,23 @@ function Home() {
               onChange={(e) => setRoomCode(e.target.value)}
               required
             />
-            <input
-              type="password"
-              placeholder="Enter room password"
-              value={joinedRoomPassword}
-              onChange={(e) => setJoinedRoomPassword(e.target.value)}
-              required
-            />
+            <div className="password">
+              <input
+                type={toggleJoinPasswordInput ? "text" : "password"}
+                placeholder="Enter room password"
+                value={joinedRoomPassword}
+                onChange={(e) => setJoinedRoomPassword(e.target.value)}
+                required
+              />
+              <img
+                src={toggleJoinPasswordInput ? EyeBtn : EyeCloseBtn}
+                alt={toggleJoinPasswordInput ? "Hide" : "Show"}
+                className="eye-toggle-btn"
+                onClick={() =>
+                  setToggleJoinPasswordInput(!toggleJoinPasswordInput)
+                }
+              />
+            </div>
           </div>
           <div className="room-btn-area">
             <button className="room-btn">Join</button>

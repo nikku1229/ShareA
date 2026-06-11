@@ -5,12 +5,15 @@ import Logo from "../assets/Logos/ShareA-Logo-full.png";
 import GoogleIcon from "../assets/Icons/GoogleIcon.svg";
 import EmailIcon from "../assets/Icons/EmailIcon.svg";
 import BackButton from "../components/BackButton.jsx";
+import EyeBtn from "../assets/Icons/EyeIcon.svg";
+import EyeCloseBtn from "../assets/Icons/EyeOffIcon.svg";
 import Toast from "../components/Toast.jsx";
 import { useApp } from "../context/AppContext.jsx";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [togglePasswordInput, setTogglePasswordInput] = useState(false);
   const navigate = useNavigate();
   const { showToast, popUp } = useApp();
 
@@ -94,14 +97,22 @@ function Login() {
                 required
                 className="form-input"
               />
-              <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="form-input"
-              />
+              <div className="password">
+                <input
+                  type={togglePasswordInput ? "text" : "password"}
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="form-input"
+                />
+                <img
+                  src={togglePasswordInput ? EyeBtn : EyeCloseBtn}
+                  alt={togglePasswordInput ? "Hide" : "Show"}
+                  className="eye-toggle-btn"
+                  onClick={() => setTogglePasswordInput(!togglePasswordInput)}
+                />
+              </div>
               <button type="submit" className="form-button">
                 Login
               </button>
