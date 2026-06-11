@@ -4,6 +4,8 @@ import faviconLogo from "../assets/Logos/ShareA-favicon.png";
 import Logo from "../assets/Logos/ShareA-Logo-full.png";
 import GoogleIcon from "../assets/Icons/GoogleIcon.svg";
 import EmailIcon from "../assets/Icons/EmailIcon.svg";
+import EyeBtn from "../assets/Icons/EyeIcon.svg";
+import EyeCloseBtn from "../assets/Icons/EyeOffIcon.svg";
 import BackButton from "../components/BackButton.jsx";
 import Toast from "../components/Toast.jsx";
 import { useApp } from "../context/AppContext";
@@ -12,6 +14,7 @@ function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [togglePasswordInput, setTogglePasswordInput] = useState(false);
   const navigate = useNavigate();
   const { showToast, popUp } = useApp();
 
@@ -72,14 +75,22 @@ function Register() {
                 required
                 className="form-input"
               />
-              <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="form-input"
-              />
+              <div className="password">
+                <input
+                  type={togglePasswordInput ? "text" : "password"}
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="form-input"
+                />
+                <img
+                  src={togglePasswordInput ? EyeBtn : EyeCloseBtn}
+                  alt={togglePasswordInput ? "Hide" : "Show"}
+                  className="eye-toggle-btn"
+                  onClick={() => setTogglePasswordInput(!togglePasswordInput)}
+                />
+              </div>
               <button type="submit" className="form-button">
                 SignUp
               </button>
