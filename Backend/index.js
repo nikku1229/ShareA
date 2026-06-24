@@ -30,6 +30,10 @@ io.on("connection", (socket) => {
   socket.on("fileChunk", controller.handleFileChunk);
   socket.on("fileMeta", controller.handleFileMeta);
   socket.on("disconnect", controller.handleDisconnect);
+
+  socket.on("error", (error) => {
+    console.error(`Socket error for ${socket.id}:`, error);
+  });
 });
 
 server.listen(PORT, () =>
