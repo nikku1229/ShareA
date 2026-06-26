@@ -241,6 +241,7 @@ export const SocketProvider = ({ children }) => {
       socket.off("fileChunk");
     };
   }, [
+    isConnected,
     setRoomCode,
     setJoinedRoom,
     setError,
