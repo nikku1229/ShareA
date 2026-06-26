@@ -39,10 +39,12 @@ export const useRoom = () => {
 
       try {
         if (!socket.connected) {
+          console.log("Socket connection check adn reconnect");
           await connectSocket();
         }
 
         socket.emit("createRoom", password);
+        console.log("create room established");
         isCreatingRef.current = false;
       } catch (err) {
         console.error("Connection failed:", err);
@@ -69,12 +71,10 @@ export const useRoom = () => {
       isJoiningRef.current = true;
 
       try {
-        // Connect if not connected
         if (!socket.connected) {
           await connectSocket();
         }
 
-        // Emit directly without setTimeout
         socket.emit("joinRoom", { code, joinedRoomPassword: password });
         isJoiningRef.current = false;
       } catch (err) {

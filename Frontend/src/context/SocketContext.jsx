@@ -75,15 +75,17 @@ export const SocketProvider = ({ children }) => {
 
     connectionPromiseRef.current = new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
+        console.log("socket timeout start");
         connectionPromiseRef.current = null;
         reject(new Error("Connection timeout"));
-      }, 5000);
+      }, 10000);
 
       socket.connect();
 
       const onConnect = () => {
         clearTimeout(timeout);
         setIsConnected(true);
+        console.log("socket conection established");
         socket.off("connect", onConnect);
         socket.off("connect_error", onError);
         connectionPromiseRef.current = null;
