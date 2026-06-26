@@ -2,6 +2,7 @@ import React, {
   createContext,
   useContext,
   useEffect,
+  useLayoutEffect,
   useState,
   useRef,
 } from "react";
@@ -121,7 +122,7 @@ export const SocketProvider = ({ children }) => {
     connectionPromiseRef.current = null;
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const handleConnect = () => {
       setIsConnected(true);
     };
