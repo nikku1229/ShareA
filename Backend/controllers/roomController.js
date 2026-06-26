@@ -6,6 +6,7 @@ export const roomController = (io, socket) => {
     handleCreateRoom: (password) => {
       if (!password) {
         socket.emit("roomError", "Password is required to create a room");
+        console.log("password required");
         return;
       }
 

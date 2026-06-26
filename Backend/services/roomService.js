@@ -15,6 +15,8 @@ export const roomService = {
       name: `User-${socketId.substring(0, 3)}`,
     });
 
+    console.log("User Join room by creating");
+
     return rooms[code];
   },
 
