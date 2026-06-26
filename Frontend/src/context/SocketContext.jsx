@@ -65,13 +65,18 @@ export const SocketProvider = ({ children }) => {
 
   const connectSocket = () => {
     if (socket.connected) {
+      console.log("socket is already connected, now it start recoencting");
       setIsConnected(true);
+      console.log("socketConnection true");
       return Promise.resolve();
     }
 
     if (connectionPromiseRef.current) {
+      console.log("connection promise is already established");
       return connectionPromiseRef.current;
     }
+
+    console.log("connection promise start establisheing");
 
     connectionPromiseRef.current = new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
@@ -130,6 +135,7 @@ export const SocketProvider = ({ children }) => {
     socket.on("disconnect", handleDisconnect);
 
     socket.on("roomCreated", (code) => {
+      console.log("Room created and joined is true");
       socket.currentRoom = code;
       roomJoinedRef.current = true;
       setRoomCode(code);
